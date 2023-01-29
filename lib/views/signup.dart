@@ -91,7 +91,7 @@ class signup extends StatelessWidget {
                   padding: const EdgeInsets.all(8.0),
                   child: ElevatedButton(onPressed: (){
                     if(authService.email != "" && authService.password != ""){
-                      authService.LogInUser();
+                      authService.RegisterUser();
                       Navigator.push(context, MaterialPageRoute(builder: (context)=> home()));
                     }
                   },
