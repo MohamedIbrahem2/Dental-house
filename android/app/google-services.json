@@ -1,33 +1,41 @@
 {
   "project_info": {
-    "project_number": "182781957550",
-    "project_id": "dental-house-c8183",
-    "storage_bucket": "dental-house-c8183.appspot.com"
+    "project_number": "296559341984",
+    "project_id": "dental-house-e044b",
+    "storage_bucket": "dental-house-e044b.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:182781957550:android:e07b30addd8dd4a035e43f",
+        "mobilesdk_app_id": "1:296559341984:android:d6806935862eabacbeb4c5",
         "android_client_info": {
           "package_name": "com.example.dental_house"
         }
       },
       "oauth_client": [
         {
-          "client_id": "182781957550-ghc988i7ggrs466u64g6dllnoeq8b9c2.apps.googleusercontent.com",
+          "client_id": "296559341984-rsc46korq0icj18irmoijkf82jhtm9l5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.dental_house",
+            "certificate_hash": "ace2d844a2e8e0555e29c19ca8a473b9e5367bea"
+          }
+        },
+        {
+          "client_id": "296559341984-327csdtphbs3rgv1vs92q8plfumrrh5f.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBlwR5Cpk-7mLvJ7kLw-ZT2gaxz8oiJagQ"
+          "current_key": "AIzaSyB76lHW8A304K-fq5XbISUdwH6CWxyef1c"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "182781957550-ghc988i7ggrs466u64g6dllnoeq8b9c2.apps.googleusercontent.com",
+              "client_id": "296559341984-327csdtphbs3rgv1vs92q8plfumrrh5f.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

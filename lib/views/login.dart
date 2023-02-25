@@ -1,8 +1,7 @@
+import 'package:dental_house/auth/authan.dart';
 import 'package:dental_house/views/home.dart';
 import 'package:flutter/material.dart';
 import 'package:email_validator/email_validator.dart';
-
-import '../auth/authan.dart';
 class login extends StatefulWidget {
 
 
@@ -11,7 +10,8 @@ class login extends StatefulWidget {
 }
 
 class _loginState extends State<login> {
-  AuthService authService = AuthService();
+  TextEditingController email = TextEditingController();
+  TextEditingController pass = TextEditingController();
   bool check = true;
   final _formkey = GlobalKey<FormState>();
   @override
@@ -49,7 +49,7 @@ class _loginState extends State<login> {
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: TextFormField(
-                      controller: authService.email,
+                      controller: email,
                       keyboardType: TextInputType.emailAddress,
                       autofillHints: [AutofillHints.email],
                       validator: (String? value){
@@ -76,7 +76,7 @@ class _loginState extends State<login> {
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: TextFormField(
-                      controller: authService.password,
+                      controller: pass,
                       keyboardType: TextInputType.visiblePassword,
                       obscureText: check,
                       validator: (String? value){
@@ -109,11 +109,6 @@ class _loginState extends State<login> {
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: ElevatedButton(onPressed: (){
-                      if(authService.email != "" && authService.password != ""){
-                        authService.LogInUser();
-                        Navigator.push(context, MaterialPageRoute(builder: (context)=> home()));
-                      }
-                      return;
                     },
                         child: Text("Log in",
                           style: TextStyle(color: Colors.white,fontSize: 15,fontWeight: FontWeight.bold),),

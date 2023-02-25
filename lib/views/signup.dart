@@ -2,9 +2,11 @@ import 'package:dental_house/auth/authan.dart';
 import 'package:dental_house/views/home.dart';
 import 'package:flutter/material.dart';
 
+
 class signup extends StatelessWidget {
   TextEditingController name = TextEditingController();
-  AuthService authService = AuthService();
+  TextEditingController email = TextEditingController();
+  TextEditingController pass = TextEditingController();
   @override
   Widget build(BuildContext context) {
 
@@ -55,7 +57,7 @@ class signup extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: TextField(
-                    controller: authService.email,
+                    controller: email,
                     keyboardType: TextInputType.emailAddress,
                     decoration: InputDecoration(
                       enabledBorder: OutlineInputBorder(
@@ -72,7 +74,7 @@ class signup extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: TextField(
-                    controller: authService.password,
+                    controller: pass,
                     keyboardType: TextInputType.visiblePassword,
                     obscureText: true,
                     decoration: InputDecoration(
@@ -90,10 +92,6 @@ class signup extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: ElevatedButton(onPressed: (){
-                    if(authService.email != "" && authService.password != ""){
-                      authService.RegisterUser();
-                      Navigator.push(context, MaterialPageRoute(builder: (context)=> home()));
-                    }
                   },
                       child: Text("Sign Up",
                         style: TextStyle(color: Colors.white,fontSize: 15,fontWeight: FontWeight.bold),),
