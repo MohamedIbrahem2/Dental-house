@@ -1,7 +1,9 @@
-import 'package:dental_house/auth/authan.dart';
+
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:dental_house/views/home.dart';
+import 'package:dental_house/views/signup.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:email_validator/email_validator.dart';
 class login extends StatefulWidget {
 
 
@@ -12,8 +14,55 @@ class login extends StatefulWidget {
 class _loginState extends State<login> {
   TextEditingController email = TextEditingController();
   TextEditingController pass = TextEditingController();
-  bool check = true;
-  final _formkey = GlobalKey<FormState>();
+  GlobalKey<FormState> formstate = GlobalKey<FormState>();
+  var mypassword , myemail;
+
+  signIn() async{
+    var formdata = formstate.currentState;
+    if(formdata!.validate()){
+      formdata.save();
+      try {
+        UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+            email: myemail,
+            password: mypassword
+        );
+        return userCredential;
+      } on FirebaseAuthException catch (e) {
+        if (e.code == 'user-not-found') {
+          AwesomeDialog(
+            borderSide: BorderSide(
+                width: 3,
+                color: Colors.blue
+            ),
+            context: context,
+            title: "Error",
+            body: Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Text("No user found for that email.",style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),),
+            ),
+          )..show();
+          print('No user found for that email.');
+        } else if (e.code == 'wrong-password') {
+          AwesomeDialog(
+            borderSide: BorderSide(
+                width: 3,
+                color: Colors.blue
+            ),
+            context: context,
+            title: "Error",
+            body: Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Text("Wrong password provided for that user.",style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),),
+            ),
+          )..show();
+          print('Wrong password provided for that user.');
+        }
+      }
+
+    }else{
+      print("NOT valid");
+    }
+  }
   @override
   Widget build(BuildContext context) {
 
@@ -29,7 +78,7 @@ class _loginState extends State<login> {
           ),
           SingleChildScrollView(
             child: Form(
-              key: _formkey,
+              key: formstate,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
@@ -49,19 +98,21 @@ class _loginState extends State<login> {
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: TextFormField(
+                      onSaved: (val){
+                        myemail = val;
+                      },
                       controller: email,
-                      keyboardType: TextInputType.emailAddress,
-                      autofillHints: [AutofillHints.email],
-                      validator: (String? value){
-                        if(value!.isEmpty){
-                          return "Please Enter Your Email";
+                      validator: (val){
+                        if(val!.length> 100){
+                          return "Email can't to be longer than 100 letter";
                         }
-                        else if(!EmailValidator.validate(value,true)){
-                          return 'Invalid Email Address';
+                        if(val.length < 2){
+                          return "Email can't to be less than 2 latter";
                         }
-                        _formkey.currentState!.save();
                         return null;
                       },
+                      keyboardType: TextInputType.emailAddress,
+                      autofillHints: [AutofillHints.email],
                       decoration: InputDecoration(
                         enabledBorder: OutlineInputBorder(
                           borderSide: BorderSide(color: Colors.blueAccent)
@@ -76,16 +127,20 @@ class _loginState extends State<login> {
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: TextFormField(
+                      onSaved: (val){
+                        mypassword = val;
+                      },
                       controller: pass,
-                      keyboardType: TextInputType.visiblePassword,
-                      obscureText: check,
-                      validator: (String? value){
-                        if(value!.length < 8){
-                          return "Password Should be minimum 8 characters";
+                      validator: (val){
+                        if(val!.length > 100){
+                          return "password can't to be longer than 100 letter";
                         }
-                        _formkey.currentState!.save();
+                        if(val.length < 4){
+                          return "password can't to be less than 4 latter";
+                        }
                         return null;
                       },
+                      keyboardType: TextInputType.visiblePassword,
                       decoration: InputDecoration(
                         enabledBorder: OutlineInputBorder(
                             borderSide: BorderSide(color: Colors.blueAccent)
@@ -96,19 +151,19 @@ class _loginState extends State<login> {
                         prefixIcon: Icon(Icons.lock),
                         suffixIcon: IconButton(
                             onPressed: () {
-                              check = !check;
-                              setState(() {
-
-                              });
                             },
-                            icon: Icon(Icons.remove_red_eye,color: check? Colors.blueAccent : Colors.red), ),
+                            icon: Icon(Icons.remove_red_eye,color:Colors.blueAccent), ),
                       ),
                     ),
                   ),
                   TextButton(onPressed: (){}, child: Text("Forget Password?")),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: ElevatedButton(onPressed: (){
+                    child: ElevatedButton(onPressed: () async{
+                      var user =  await signIn();
+                      if(user != null){
+                        Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=>home()));
+                      }
                     },
                         child: Text("Log in",
                           style: TextStyle(color: Colors.white,fontSize: 15,fontWeight: FontWeight.bold),),
@@ -127,7 +182,9 @@ class _loginState extends State<login> {
                   SizedBox(height: 5,),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: ElevatedButton(onPressed: (){},
+                    child: ElevatedButton(onPressed: (){
+                      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=>signup()));
+                    },
                         child: Text("Sign up",
                           style: TextStyle(color: Colors.grey,fontSize: 15,fontWeight: FontWeight.bold),),
                         style: ElevatedButton.styleFrom(
