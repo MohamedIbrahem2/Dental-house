@@ -1,9 +1,14 @@
 
+import 'package:dental_house/views/home_views/calendar_view.dart';
+import 'package:dental_house/views/home_views/notification_view.dart';
+import 'package:dental_house/views/home_views/person_view.dart';
+import 'package:dental_house/views/home_views/profile.dart';
+import 'package:dental_house/views/home_views/settings_view.dart';
 import 'package:dental_house/views/login.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 class home extends StatefulWidget {
-  const home({Key? key}) : super(key: key);
 
   @override
   State<home> createState() => _homeState();
@@ -19,26 +24,29 @@ class _homeState extends State<home> {
     getUser();
     super.initState();
   }
-
+  int SelectedPage = 0;
+  final _pageNo = [person(),notifi(),profile(),settings(),calendar()];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("HOME"),
-        actions: [
-          IconButton(icon: Icon(Icons.exit_to_app),onPressed: () async{
-            await FirebaseAuth.instance.signOut();
-            Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=>login()));
-          },),
-        ],
+      appBar: null,
+      bottomNavigationBar: ConvexAppBar(
+          items:[
+            TabItem(icon: Icons.calendar_month, title: 'person'),
+            TabItem(icon: Icons.notification_add, title: 'notifi'),
+            TabItem(icon: Icons.add,title: 'profile'),
+            TabItem(icon: Icons.settings, title: 'settings'),
+            TabItem(icon: Icons.person, title: 'calendar')
+          ],
+        style: TabStyle.react,
+        initialActiveIndex: SelectedPage,
+    onTap: (int i){
+            setState(() {
+              SelectedPage = i;
+            });
+    },
       ),
-      backgroundColor: Colors.black,
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text("YAHOOOOOO",style: TextStyle(color: Colors.red,fontSize: 50),),
-        ],
-      ),
+      body: _pageNo[SelectedPage],
     );
   }
 }

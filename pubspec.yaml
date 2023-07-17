@@ -39,6 +39,10 @@ dependencies:
   firebase_core: ^2.4.0
   firebase_auth: ^4.2.9
   awesome_dialog: ^3.0.2
+  persistent_bottom_nav_bar: ^5.0.2
+  convex_bottom_bar: ^3.2.0
+  table_calendar: ^3.0.8
+  syncfusion_flutter_calendar: ^21.2.5
 
 
 

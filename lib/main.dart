@@ -1,4 +1,5 @@
 import 'package:dental_house/views/home.dart';
+import 'package:dental_house/views/home_views/calendar_view.dart';
 import 'package:dental_house/views/login.dart';
 import 'package:dental_house/views/splash_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -17,6 +18,8 @@ void main() async{
   }
   runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
-    home: isLogin == false ? splash() : home(),
+    //home: isLogin == false ? splash() : home(),
+    home : calendar()
+    //home: home(),
   ));
 }

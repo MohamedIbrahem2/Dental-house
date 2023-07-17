@@ -73,8 +73,13 @@ class _signupState extends State<signup> {
 
   @override
   Widget build(BuildContext context) {
+    MediaQueryData queryData;
+    queryData = MediaQuery.of(context);
+    double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: null,
       body:
       Stack(
@@ -84,26 +89,30 @@ class _signupState extends State<signup> {
             height: double.infinity,
             child: Image.asset("images/login-01.png", fit: BoxFit.fill,),
           ),
-          SingleChildScrollView(
-            child: Form(
-              key: formstate,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(right: 300,top: 30),
-                    child: IconButton(
-                        onPressed: (){},
-                        icon: Icon((Icons.arrow_back_ios),color: Colors.white,)
+          Form(
+            key: formstate,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(right: 250,top: 50),
+                      child: IconButton(
+                          onPressed: (){},
+                          icon: Icon((Icons.arrow_back_ios),color: Colors.white,)
+                      ),
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(right: 200,bottom: 200,top: 150),
-                    child: Text("Create \nAccount",style: TextStyle(
-                        color: Colors.white,fontSize: 35,fontWeight: FontWeight.bold
-                    )),
-                  ),
-                  Padding(
+                    Padding(
+                      padding: const EdgeInsets.only(right: 150,top: 80,bottom: 95),
+                      child: Text("Create \nAccount",style: TextStyle(
+                          color: Colors.white,fontSize: 35,fontWeight: FontWeight.bold
+                      )),
+                    ),
+                  ],
+                ),
+                Expanded(
+                  child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: TextFormField(
                       onSaved: (val){
@@ -132,7 +141,9 @@ class _signupState extends State<signup> {
                       ),
                     ),
                   ),
-                  Padding(
+                ),
+                Expanded(
+                  child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: TextFormField(
                       onSaved: (val){
@@ -161,7 +172,9 @@ class _signupState extends State<signup> {
                       ),
                     ),
                   ),
-                  Padding(
+                ),
+                Expanded(
+                  child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: TextFormField(
                       onSaved: (val){
@@ -191,7 +204,9 @@ class _signupState extends State<signup> {
                       ),
                     ),
                   ),
-                  Padding(
+                ),
+                Expanded(
+                  child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: ElevatedButton(onPressed: () async{
                       UserCredential response = await signUp();
@@ -215,10 +230,12 @@ class _signupState extends State<signup> {
                         )
                     ),
                   ),
-                  SizedBox(height: 10,),
-                  Text("Or"),
-                  SizedBox(height: 5,),
-                  Padding(
+                ),
+                SizedBox(height: 10,),
+                Text("Or"),
+                SizedBox(height: 5,),
+                Expanded(
+                  child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: ElevatedButton(onPressed: (){
                       Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=>login()));
@@ -235,8 +252,8 @@ class _signupState extends State<signup> {
                         )
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ],
