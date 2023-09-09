@@ -15,6 +15,7 @@ class home extends StatefulWidget {
 }
 
 class _homeState extends State<home> {
+
   getUser() async {
     var user = FirebaseAuth.instance.currentUser;
     print(user?.email);
@@ -25,11 +26,19 @@ class _homeState extends State<home> {
     super.initState();
   }
   int SelectedPage = 0;
+
   final _pageNo = [person(),notifi(),profile(),settings(),calendar()];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: null,
+      appBar: AppBar(
+        leading: IconButton(
+            onPressed: (){
+              FirebaseAuth.instance.signOut();
+              Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=> login()));
+            },
+            icon: Icon(Icons.logout))
+      ),
       bottomNavigationBar: ConvexAppBar(
           items:[
             TabItem(icon: Icons.calendar_month, title: 'person'),
@@ -38,7 +47,7 @@ class _homeState extends State<home> {
             TabItem(icon: Icons.settings, title: 'settings'),
             TabItem(icon: Icons.person, title: 'calendar')
           ],
-        style: TabStyle.react,
+        style: TabStyle.reactCircle,
         initialActiveIndex: SelectedPage,
     onTap: (int i){
             setState(() {
@@ -46,7 +55,8 @@ class _homeState extends State<home> {
             });
     },
       ),
-      body: _pageNo[SelectedPage],
+      body:
+      _pageNo[SelectedPage],
     );
   }
 }
