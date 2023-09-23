@@ -16,8 +16,10 @@ class EventEditing extends StatefulWidget {
 }
 
 class _EventEditingState extends State<EventEditing> {
+   bool check = false;
   final _formKey = GlobalKey<FormState>();
   final titleController = TextEditingController();
+  final desController = TextEditingController();
   late DateTime fromDate;
   late DateTime toDate;
   @override
@@ -29,8 +31,10 @@ class _EventEditingState extends State<EventEditing> {
     } else{
       final event = widget.event!;
       titleController.text = event.eventName;
+      desController.text = event.description;
       fromDate = event.from;
       toDate = event.to;
+      check = event.isAllDay;
     }
   }
   @override
@@ -54,6 +58,10 @@ class _EventEditingState extends State<EventEditing> {
               buildTitle(),
             SizedBox(height: 12,),
             buildDateTimePacker(),
+            SizedBox(height: 12,),
+            checkBox(),
+            SizedBox(height: 12,),
+            description(),
           ],
         ),
       ),
@@ -70,6 +78,39 @@ class _EventEditingState extends State<EventEditing> {
         label: Text("Save")
     ),
   ];
+  Widget checkBox() => Row(
+    children: [
+      Text("All Day",
+        style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),
+      ),
+      SizedBox(width: 5,),
+      Checkbox(
+          value: check,
+          onChanged: (bool? value) {
+            setState(() {
+              check = value!;
+            });
+          },
+          checkColor: Colors.blueAccent,
+      ),
+    ],
+  );
+  Widget description() => Column(
+    children: [
+      Text("Description",style: TextStyle(
+        fontSize: 24,fontWeight: FontWeight.bold
+      ),),
+      SizedBox(height: 10,),
+      TextFormField(
+        controller: desController,
+        maxLines: 5,
+        style: TextStyle(fontSize: 20),
+        decoration: InputDecoration(
+          hintText: "Description",
+        ),
+      )
+    ],
+  );
   Widget buildTitle() => TextFormField(
     style: TextStyle(fontSize: 24),
     decoration: InputDecoration(
@@ -200,11 +241,11 @@ class _EventEditingState extends State<EventEditing> {
     if(isValid){
       final event = Meeting(
           titleController.text,
-          'Description',
+          desController.text,
           fromDate,
           Colors.blue,
           toDate,
-          false
+          check
       );
       final isEditing = widget.event != null;
       final provider = Provider.of<EventProvider>(context, listen: false);

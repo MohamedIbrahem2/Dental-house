@@ -10,8 +10,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
 bool isLogin = true;
 
-void main() async{
-  WidgetsFlutterBinding.ensureInitialized();
+void main() {
+  /*WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   var user = FirebaseAuth.instance.currentUser;
   if(user == null){
@@ -19,13 +19,15 @@ void main() async{
   }else{
     isLogin = true;
   }
+   */
+
   runApp(
     ChangeNotifierProvider(create: (context)=> EventProvider(),
       child:MaterialApp(
     debugShowCheckedModeBanner: false,
     themeMode: ThemeMode.dark,
-    home: isLogin == false ? splash() : home(),
-    //home : calendar()
+    //home: isLogin == false ? splash() : home(),
+    home : calendar()
     //home: home(),
   )
     )

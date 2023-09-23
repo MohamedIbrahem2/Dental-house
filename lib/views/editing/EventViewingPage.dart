@@ -23,13 +23,15 @@ const EventViewingPage({
       body: ListView(
         padding: EdgeInsets.all(32),
         children: <Widget>[
-          buildDateTime(event),
-          SizedBox(height: 32,),
           Text(
             event.eventName,
             style: TextStyle(fontSize: 24,fontWeight: FontWeight.bold),
           ),
+          const SizedBox(height: 32,),
+          buildDateTime(event),
           const SizedBox(height: 24,),
+          const Text("Description",style: TextStyle(color: Colors.black,fontSize: 24),),
+          const SizedBox(height: 10,),
           Text(event.description,
             style: TextStyle(color: Colors.black,fontSize: 18),
           )
