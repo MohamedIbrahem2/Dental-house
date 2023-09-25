@@ -45,6 +45,7 @@ dependencies:
   syncfusion_flutter_calendar: ^21.2.5
   intl: ^0.18.1
   provider: ^6.0.5
+  flutter_svg: ^2.0.7
 
 
 

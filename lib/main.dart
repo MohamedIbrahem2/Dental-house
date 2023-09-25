@@ -2,6 +2,7 @@
 import 'package:dental_house/provider/event_provider.dart';
 import 'package:dental_house/views/home.dart';
 import 'package:dental_house/views/home_views/calendar_view.dart';
+import 'package:dental_house/views/home_views/profile.dart';
 import 'package:dental_house/views/login.dart';
 import 'package:dental_house/views/splash_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -27,7 +28,7 @@ void main() {
     debugShowCheckedModeBanner: false,
     themeMode: ThemeMode.dark,
     //home: isLogin == false ? splash() : home(),
-    home : calendar()
+    home : profile()
     //home: home(),
   )
     )
