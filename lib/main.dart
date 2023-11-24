@@ -3,16 +3,19 @@ import 'package:dental_house/provider/event_provider.dart';
 import 'package:dental_house/views/home.dart';
 import 'package:dental_house/views/home_views/calendar_view.dart';
 import 'package:dental_house/views/home_views/profile.dart';
+import 'package:dental_house/views/home_views/profile_views/profile_info.dart';
 import 'package:dental_house/views/login.dart';
+import 'package:dental_house/views/signup.dart';
 import 'package:dental_house/views/splash_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
-bool isLogin = true;
+bool isLogin = false;
 
-void main() {
-  /*WidgetsFlutterBinding.ensureInitialized();
+void main() async{
+
+  WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   var user = FirebaseAuth.instance.currentUser;
   if(user == null){
@@ -20,7 +23,7 @@ void main() {
   }else{
     isLogin = true;
   }
-   */
+
 
   runApp(
     ChangeNotifierProvider(create: (context)=> EventProvider(),
@@ -28,7 +31,7 @@ void main() {
     debugShowCheckedModeBanner: false,
     themeMode: ThemeMode.dark,
     //home: isLogin == false ? splash() : home(),
-    home : profile()
+    home : calendar()
     //home: home(),
   )
     )

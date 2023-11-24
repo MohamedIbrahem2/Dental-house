@@ -8,63 +8,33 @@ class startup extends StatelessWidget {
       appBar: null,
       body: Stack(
         children: [
-          Container(
+          SizedBox(
             width: double.infinity,
             height: double.infinity,
             child: Image.asset("images/startup.png", fit: BoxFit.fill,),
           ),
           Padding(
-            padding: const EdgeInsets.all(20.0),
+            padding: const EdgeInsets.all(10.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Padding(
-                  padding: const EdgeInsets.only(right: 100.0, bottom: 20),
-                  child: Text("DENTAL HOUSE",
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 30,
-                        fontWeight: FontWeight.bold
-                    ),
+                Text("DENTAL HOUSE",
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 30,
+                      fontWeight: FontWeight.bold
                   ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only( bottom: 50),
-                  child: Container(
-                    width: double.infinity,
-                    height: 1,
-                    color: Colors.black87,
-                  ),
-                ),
-                ElevatedButton(onPressed: (){
-                  Navigator.push(context, MaterialPageRoute(builder: (context)=>login()));
-                },
-                    child: Text("Log in",
-                      style: TextStyle(color: Colors.blueAccent,fontSize: 15,fontWeight: FontWeight.bold),),
-                    style: ElevatedButton.styleFrom(
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                        fixedSize: Size(400, 50),
-                        primary: Colors.white,
-                        side: BorderSide(width: 2,
-                            color: Colors.blueAccent,
-                            style: BorderStyle.solid)
-                    )
                 ),
                 SizedBox(height: 20,),
-                ElevatedButton(onPressed: (){
-                  Navigator.push(context, MaterialPageRoute(builder: (context)=>signup()));
-                },
-                    child: Text("Sign up",
-                      style: TextStyle(color: Colors.white,fontSize: 15,fontWeight: FontWeight.bold),),
-                    style: ElevatedButton.styleFrom(
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-                        fixedSize: Size(400, 50),
-                        primary: Colors.blueAccent,
-                        side: BorderSide(width: 2,
-                            color: Colors.white,
-                            style: BorderStyle.solid)
-                    )
-                ),
+                btn(btnClr: Colors.white, btnTxt: "Log In",
+                    onTap: (){
+                  Navigator.of(context).push(MaterialPageRoute(builder: (context)=>login()));
+                    }),
+                btn(btnClr: Colors.blueAccent, btnTxt: "Sign Up",
+                    onTap: (){
+                  Navigator.of(context).push(MaterialPageRoute(builder: (context)=>signup()));
+                    })
               ],
             ),
           )
@@ -72,4 +42,20 @@ class startup extends StatelessWidget {
       ),
     );
   }
+  Widget btn({
+    required Color btnClr,
+    required String btnTxt,
+    required void Function()? onTap,
+  }) =>Padding(
+    padding: const EdgeInsets.all(5.0),
+    child: Card(
+      color: btnClr,
+      elevation: 3,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15),side: BorderSide(width: 3,color: Colors.blueAccent)),
+      child:   ListTile(
+        title: Center(child: Text(btnTxt,style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),)),
+        onTap: onTap,
+      ),
+    ),
+  );
 }

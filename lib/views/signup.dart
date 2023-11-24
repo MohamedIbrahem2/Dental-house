@@ -1,8 +1,11 @@
 
+import 'dart:ffi';
+
 import 'package:dental_house/views/login.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:dental_house/views/home.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:awesome_dialog/awesome_dialog.dart';
 
 
@@ -12,20 +15,35 @@ class signup extends StatefulWidget {
 }
 
 class _signupState extends State<signup> {
-  var username , myemail, password;
+  var firstName, lastName , myemail, password;
+  bool secure = true;
 
-  TextEditingController name = TextEditingController();
+  TextEditingController fName = TextEditingController();
+  TextEditingController lName = TextEditingController();
 
   TextEditingController email = TextEditingController();
 
   TextEditingController pass = TextEditingController();
 
-  GlobalKey<FormState> formstate = GlobalKey<FormState>();
+  GlobalKey<FormState> formState = GlobalKey<FormState>();
+  CollectionReference users = FirebaseFirestore.instance.collection('users');
+  Future<void> addUser() {
+    return users
+        .doc('info').set({
+      'first_name': fName.text,
+      'last_name': lName.text,
+      'Email': email.text,
+    })
+        .then((value) => print("User Added"))
+        .catchError((error) => print("Failed to add user: $error"));
+  }
+
+
 
   signUp() async {
-    var formdata = formstate.currentState;
-    if(formdata!.validate()){
-      formdata.save();
+    var formData = formState.currentState;
+    if(formData!.validate()){
+      formData.save();
 
       try {
               UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
@@ -73,10 +91,6 @@ class _signupState extends State<signup> {
 
   @override
   Widget build(BuildContext context) {
-    MediaQueryData queryData;
-    queryData = MediaQuery.of(context);
-    double screenWidth = MediaQuery.of(context).size.width;
-    double screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -84,180 +98,145 @@ class _signupState extends State<signup> {
       body:
       Stack(
         children: [
-          Container(
+          SizedBox(
             width: double.infinity,
             height: double.infinity,
             child: Image.asset("images/login-01.png", fit: BoxFit.fill,),
           ),
           Form(
-            key: formstate,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(right: 250,top: 50),
-                      child: IconButton(
-                          onPressed: (){},
-                          icon: Icon((Icons.arrow_back_ios),color: Colors.white,)
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(right: 150,top: 80,bottom: 95),
-                      child: Text("Create \nAccount",style: TextStyle(
-                          color: Colors.white,fontSize: 35,fontWeight: FontWeight.bold
-                      )),
-                    ),
-                  ],
-                ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: TextFormField(
-                      onSaved: (val){
-                        username = val;
-                      },
-                      controller: name,
-                      validator: (val){
-                        if(val!.length > 100){
-                          return "username can't to be longer than 100 letter";
-                        }
-                        if(val.length < 2){
-                          return "username can't to be less than 2 latter";
-                        }
-                        return null;
-                      },
-                      keyboardType: TextInputType.name,
-                      decoration: InputDecoration(
-                        enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.blueAccent)
-                        ),
-                        hintText: "Type Name",
-                        labelText: "Name",
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.person),
-                        suffixIcon: Icon(Icons.check),
-                      ),
+            key: formState,
+            child: Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: IconButton(
+                        onPressed: (){
+                          Navigator.of(context).pop();
+                        },
+                        icon: Icon((Icons.arrow_back_ios),color: Colors.white,)
                     ),
                   ),
-                ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: TextFormField(
-                      onSaved: (val){
-                        myemail = val;
-                      },
-                      controller: email,
-                      validator: (val){
-                        if(val!.length> 100){
-                          return "Email can't to be longer than 100 letter";
-                        }
-                        if(val.length < 2){
-                          return "Email can't to be less than 2 latter";
-                        }
-                        return null;
-                      },
-                      keyboardType: TextInputType.emailAddress,
-                      decoration: InputDecoration(
-                        enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.blueAccent)
-                        ),
-                        hintText: "Type Email",
-                        labelText: "Email",
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.email_outlined),
-                        suffixIcon: Icon(Icons.check),
-                      ),
-                    ),
+                  Expanded(
+                    flex: 4,
+                    child: Text("Create \nAccount",style: TextStyle(
+                        color: Colors.white,fontSize: 35,fontWeight: FontWeight.bold
+                    )),
                   ),
-                ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: TextFormField(
-                      onSaved: (val){
-                        password = val;
-                      },
-                      controller: pass,
-                      validator: (val){
-                        if(val!.length > 100){
-                          return "password can't to be longer than 100 letter";
+                  txtField(onSaved: (val){
+                    firstName = val;
+                  }, ctrl: fName, txt1: "First Name can't to be longer than 100 letter",
+                      txt2: "First Name can't to be less than 2 letter",
+                      num: 2, txtInput: TextInputType.name, hntTxt: "Type First Name", secure: false,
+                      labText: "First name", pre: Icon(Icons.person_outline), suffix: null),
+                  txtField(onSaved: (val){
+                    lastName = val;
+                  }, ctrl: lName, txt1: "Last Name can't to be longer than 100 letter",
+                      txt2: "Last Name can't to be less than 2 letter",
+                      num: 2, txtInput: TextInputType.name, hntTxt: "Type Last Name", secure: false,
+                      labText: "Last name", pre: Icon(Icons.person_outline), suffix: null),
+                  txtField(onSaved: (val){
+                    myemail = val;
+                  }, ctrl: email, txt1: "Email can't to be longer than 100 letter",
+                      txt2: "Email can't to be less than 2 letter",
+                      num: 2, txtInput: TextInputType.emailAddress, hntTxt: "Type Email", secure: false,
+                      labText: "Email", pre: Icon(Icons.email_outlined), suffix: null),
+                  txtField(onSaved: (val){
+                    password = val;
+                  }, ctrl: pass, txt1: "password can't to be longer than 100 letter",
+                      txt2: "password can't to be less than 4 letter",
+                      num: 4, txtInput: TextInputType.visiblePassword, hntTxt: "Type Password", labText: "Password",
+                      pre: Icon(Icons.lock_outline), suffix: IconButton(onPressed: (){
+                        setState(() {
+                          if(secure == true){
+                            secure = false;
+                          }else{
+                            secure = true;
+                          }
+                        });
+                      }, icon: Icon(secure == true ? Icons.visibility_outlined : Icons.visibility_off_outlined)), secure: secure),
+                  btn(btnClr: Colors.blueAccent, btnTxt: "Sign Up",
+                      onTap: () async{
+                        UserCredential response = await signUp();
+                        setState(() {
+                          addUser();
+                        });
+                        print("================");
+                        if(response != null){
+                          Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=> home()));
+                        }else{
+                          print("signUp failed");
                         }
-                        if(val.length < 4){
-                          return "password can't to be less than 4 latter";
-                        }
-                        return null;
-                      },
-                      keyboardType: TextInputType.visiblePassword,
-                      obscureText: true,
-                      decoration: InputDecoration(
-                        enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.blueAccent)
-                        ),
-                        hintText: "Type Password",
-                        labelText: "Password",
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.lock),
-                        suffixIcon: Icon(Icons.remove_red_eye),
-                      ),
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: ElevatedButton(onPressed: () async{
-                      UserCredential response = await signUp();
-                      print("================");
-                      if(response != null){
-                        Navigator.of(context).push(MaterialPageRoute(builder: (context)=> home()));
-                      }else{
-                        print("signUp failed");
-                      }
-                      print("================");
-                    },
-                        child: Text("Sign Up",
-                          style: TextStyle(color: Colors.white,fontSize: 15,fontWeight: FontWeight.bold),),
-                        style: ElevatedButton.styleFrom(
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                            fixedSize: Size(400, 50),
-                            primary: Colors.blueAccent,
-                            side: BorderSide(width: 2,
-                                color: Colors.blueAccent,
-                                style: BorderStyle.solid)
-                        )
-                    ),
-                  ),
-                ),
-                SizedBox(height: 10,),
-                Text("Or"),
-                SizedBox(height: 5,),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: ElevatedButton(onPressed: (){
-                      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=>login()));
-                    },
-                        child: Text("Log in",
-                          style: TextStyle(color: Colors.grey,fontSize: 15,fontWeight: FontWeight.bold),),
-                        style: ElevatedButton.styleFrom(
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-                            fixedSize: Size(400, 50),
-                            primary: Colors.white,
-                            side: BorderSide(width: 2,
-                                color: Colors.black,
-                                style: BorderStyle.solid)
-                        )
-                    ),
-                  ),
-                ),
-              ],
+                        print("================");
+                      }),
+                  Center(child: Text("Or")),
+                  btn(btnClr: Colors.white, btnTxt: "Log In", onTap: (){
+                    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=> login()));
+                  })
+                ],
+              ),
             ),
           ),
         ],
       ),
     );
   }
+  Widget txtField({
+    required void Function(String?)? onSaved,
+    required TextEditingController ctrl,
+    required String txt1,
+    required String txt2,
+    required int num,
+    required TextInputType? txtInput,
+    required String hntTxt,
+    required String labText,
+    required Icon pre,
+    required var suffix,
+    required bool secure,
+}) => Expanded(
+  child:   TextFormField(
+      onSaved: onSaved,
+      controller: ctrl,
+      validator: (val){
+        if(val!.length> 100){
+          return txt1;
+        }
+        if(val.length < num){
+          return txt2;
+        }
+        return null;
+      },
+      keyboardType: txtInput,
+      obscureText: secure,
+      decoration: InputDecoration(
+        enabledBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.blueAccent,width: 2)
+        ),
+        hintText: hntTxt,
+        labelText: labText,
+        border: OutlineInputBorder(),
+        prefixIcon: pre,
+        suffixIcon: suffix,
+      ),
+    ),
+);
+  Widget btn({
+    required Color btnClr,
+    required String btnTxt,
+    required void Function()? onTap,
+}) =>Expanded(
+  child:   Padding(
+      padding: const EdgeInsets.all(5.0),
+      child: Card(
+        color: btnClr,
+        elevation: 3,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15),side: BorderSide(width: 3,color: Colors.blueAccent)),
+        child:   ListTile(
+          title: Center(child: Text(btnTxt,style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),)),
+          onTap: onTap,
+        ),
+      ),
+    ),
+);
 }

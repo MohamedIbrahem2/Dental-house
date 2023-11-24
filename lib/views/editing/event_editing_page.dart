@@ -1,4 +1,5 @@
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dental_house/views/home_views/calendar_view.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -22,6 +23,19 @@ class _EventEditingState extends State<EventEditing> {
   final desController = TextEditingController();
   late DateTime fromDate;
   late DateTime toDate;
+   CollectionReference users = FirebaseFirestore.instance.collection('events');
+   Future<void> addUser() {
+     return users
+         .doc().set({
+       'eventname': titleController.text,
+       'desc': desController.text,
+       'allday': check,
+       'fromDate' : fromDate.millisecondsSinceEpoch,
+       'toDate' : toDate.microsecondsSinceEpoch
+     })
+         .then((value) => print("User Added"))
+         .catchError((error) => print("Failed to add user: $error"));
+   }
   @override
   void initState(){
     super.initState();
@@ -69,7 +83,10 @@ class _EventEditingState extends State<EventEditing> {
   );
   List<Widget> buildEditingActions() =>[
     ElevatedButton.icon(
-        onPressed: saveForm,
+        onPressed: (){
+          saveForm();
+          addUser();
+        },
         icon: Icon(Icons.done),
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.transparent,
