@@ -2,71 +2,51 @@
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:dental_house/views/home.dart';
 import 'package:dental_house/views/signup.dart';
+import 'package:dental_house/views/startup.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-class login extends StatefulWidget {
+class Login extends StatefulWidget {
+  const Login({Key? key}) : super(key: key);
+
 
 
   @override
-  State<login> createState() => _loginState();
+  State<Login> createState() => _LoginState();
 }
 
-class _loginState extends State<login> {
+class _LoginState extends State<Login> {
   TextEditingController email = TextEditingController();
   TextEditingController pass = TextEditingController();
   bool secure = true;
   bool  _isLoading = false;
-  GlobalKey<FormState> formstate = GlobalKey<FormState>();
-  var mypassword , myemail;
+  GlobalKey<FormState> formState = GlobalKey<FormState>();
+  late String myPassword , myEmail;
 
   signIn() async{
-    var formdata = formstate.currentState;
-    if(formdata!.validate()){
-      formdata.save();
+    var formData = formState.currentState;
+    if(formData!.validate()){
+      formData.save();
       try {
         _isLoading = true;
         setState(() {
 
         });
         UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
-            email: myemail,
-            password: mypassword
+            email: myEmail,
+            password: myPassword
         );
+        if(userCredential.user!.emailVerified){
+        }else{
+          dialog(dialog: DialogType.SUCCES, text: "Check your email to Verify your Account").show();
+        }
         return userCredential;
       } on FirebaseAuthException catch (e) {
         if (e.code == 'user-not-found') {
-          AwesomeDialog(
-            borderSide: BorderSide(
-                width: 3,
-                color: Colors.blue
-            ),
-            context: context,
-            title: "Error",
-            body: Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Text("No user found for that email.",style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),),
-            ),
-          ).show();
-          print('No user found for that email.');
+          dialog(dialog: DialogType.ERROR, text: "No user found for that email").show();
         } else if (e.code == 'wrong-password') {
-          AwesomeDialog(
-            borderSide: BorderSide(
-                width: 3,
-                color: Colors.blue
-            ),
-            context: context,
-            title: "Error",
-            body: Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Text("Wrong password provided for that user.",style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),),
-            ),
-          ).show();
-          print('Wrong password provided for that user.');
+          dialog(dialog: DialogType.ERROR, text: "Wrong password provided for that user").show();
         }
       }
-
-    }else{
-      print("NOT valid");
     }
   }
   @override
@@ -84,7 +64,7 @@ class _loginState extends State<login> {
             child: Image.asset("images/login-01.png", fit: BoxFit.fill,),
           ),
           Form(
-            key: formstate,
+            key: formState,
             child: Padding(
               padding: const EdgeInsets.all(10.0),
               child: Column(
@@ -93,29 +73,29 @@ class _loginState extends State<login> {
                   Expanded(
                     child: IconButton(
                         onPressed: (){
-                          Navigator.of(context).pop();
+                          Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=> startup()));
                         },
-                        icon: Icon((Icons.arrow_back_ios),color: Colors.white,)
+                        icon: const Icon((Icons.arrow_back_ios),color: Colors.white,)
                     ),
                   ),
-                  Expanded(
+                  const Expanded(
                     flex: 4,
                     child: Text("Welcome \nBack",style: TextStyle(
                       color: Colors.white,fontSize: 35,fontWeight: FontWeight.bold
                     )),
                   ),
                   txtField(onSaved: (val){
-                    myemail = val;
+                    myEmail = val!;
                   }, ctrl: email, txt1: "Email can't to be longer than 100 letter",
                       txt2: "Email can't to be less than 2 letter",
                       num: 2, txtInput: TextInputType.emailAddress, hntTxt: "Type Email", labText: "Email",
-                      pre: Icon(Icons.email_outlined), suffix: null, secure: false),
+                      pre: const Icon(Icons.email_outlined), suffix: null, secure: false),
                   txtField(onSaved: (val){
-                    mypassword = val;
+                    myPassword = val!;
                   }, ctrl: pass, txt1: "Password can't to be longer than 100 letter",
                       txt2: "Password can't to be less than 4 letter",
                       num: 4, txtInput: TextInputType.visiblePassword, hntTxt: "Type Password", labText: "Pass",
-                      pre: Icon(Icons.lock_outline), suffix: IconButton(onPressed: (){
+                      pre: const Icon(Icons.lock_outline), suffix: IconButton(onPressed: (){
                         setState(() {
                           if(secure == true){
                             secure = false;
@@ -124,17 +104,34 @@ class _loginState extends State<login> {
                           }
                         });
                       }, icon: Icon(secure == true ? Icons.visibility_outlined : Icons.visibility_off_outlined)), secure: secure),
-                  Center(child: TextButton(onPressed: (){}, child: Text("Forget Password?"))),
+                  Center(child: TextButton(onPressed: () async{
+                    if(email.text == ""){
+                      dialog(dialog: DialogType.ERROR, text: "Please type your Email then press forget password").show();
+                      return;
+                    }
+                    try {
+                      await FirebaseAuth.instance.sendPasswordResetEmail(email: email.text);
+                      dialog(dialog: DialogType.SUCCES, text: "We send reset password link to your email").show();
+                    }catch (e) {
+                      dialog(dialog: DialogType.ERROR, text: "No user found For that Email").show();
+                    }
+
+                  }, child: const Text("Forget Password?"))),
                   btn(btnClr: Colors.blueAccent, btnTxt: "Log In",
                       onTap: ()async{
                         var user =  await signIn();
-                        if(user != null){
-                          Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=>home()));
-                      }
+                        if(user != null && FirebaseAuth.instance.currentUser!.emailVerified){
+                          Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=>const Home()));
+                      }else{
+                          _isLoading = false;
+                          setState(() {
+
+                          });
+                        }
 
 
                   }),
-                  Center(child: Text("Or")),
+                  const Center(child: Text("Or")),
                   btn(btnClr: Colors.white, btnTxt: "Sign Up",
                       onTap: (){
                         Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=>signup()));
@@ -145,10 +142,10 @@ class _loginState extends State<login> {
           ),
           _isLoading ? Container(
             color: Colors.black.withOpacity(0.5),
-            child: Center(
+            child: const Center(
               child: CircularProgressIndicator(),
             ),
-          ) : SizedBox()
+          ) : const SizedBox()
         ],
       ),
     );
@@ -181,12 +178,12 @@ class _loginState extends State<login> {
       keyboardType: txtInput,
       obscureText: secure,
       decoration: InputDecoration(
-        enabledBorder: OutlineInputBorder(
+        enabledBorder: const OutlineInputBorder(
             borderSide: BorderSide(color: Colors.blueAccent,width: 2)
         ),
         hintText: hntTxt,
         labelText: labText,
-        border: OutlineInputBorder(),
+        border: const OutlineInputBorder(),
         prefixIcon: pre,
         suffixIcon: suffix,
       ),
@@ -202,12 +199,28 @@ class _loginState extends State<login> {
       child: Card(
         color: btnClr,
         elevation: 3,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15),side: BorderSide(width: 3,color: Colors.blueAccent)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15),side: const BorderSide(width: 3,color: Colors.blueAccent)),
         child:   ListTile(
-          title: Center(child: Text(btnTxt,style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),)),
+          title: Center(child: Text(btnTxt,style: const TextStyle(fontSize: 18,fontWeight: FontWeight.bold),)),
           onTap: onTap,
         ),
       ),
     ),
   );
+  AwesomeDialog dialog ({
+    required var dialog,
+    required String text,
+}) => AwesomeDialog(
+      borderSide: const BorderSide(
+      width: 3,
+      color: Colors.blue
+      ),
+      context: context,
+      title: "Error",
+      dialogType: dialog,
+      body: Padding(
+      padding: const EdgeInsets.all(12.0),
+      child: Text(text,style: const TextStyle(fontSize: 18,fontWeight: FontWeight.bold),),
+      ),
+      );
 }

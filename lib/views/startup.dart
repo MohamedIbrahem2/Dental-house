@@ -29,11 +29,11 @@ class startup extends StatelessWidget {
                 SizedBox(height: 20,),
                 btn(btnClr: Colors.white, btnTxt: "Log In",
                     onTap: (){
-                  Navigator.of(context).push(MaterialPageRoute(builder: (context)=>login()));
+                  Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=>Login()));
                     }),
                 btn(btnClr: Colors.blueAccent, btnTxt: "Sign Up",
                     onTap: (){
-                  Navigator.of(context).push(MaterialPageRoute(builder: (context)=>signup()));
+                  Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=>signup()));
                     })
               ],
             ),

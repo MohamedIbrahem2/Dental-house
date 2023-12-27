@@ -1,9 +1,12 @@
 import 'dart:io';
 import 'package:dental_house/views/home_views/profile_views/profile_info.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:image_picker/image_picker.dart';
+
+import '../login.dart';
 class profile extends StatefulWidget {
   const profile({Key? key}) : super(key: key);
 
@@ -75,11 +78,16 @@ class _profileState extends State<profile> {
                       ],
                     ),
                   ),
-                listAll(title: "My Account", leading: Icon(Icons.person_outline,color: Colors.blueAccent,),clr: Colors.white),
+                listAll(title: "My Account", leading: Icon(Icons.person_outline,color: Colors.blueAccent,),clr: Colors.white,onTap: (){
+                  Navigator.of(context).push(MaterialPageRoute(builder: (context)=> profile_info()));
+                }),
                 listAll(title: "Notifications", leading: Icon(Icons.notifications_none,color: Colors.blueAccent,),clr: Colors.white),
                 listAll(title: "Settings", leading: Icon(Icons.settings_outlined,color: Colors.blueAccent,),clr: Colors.white),
                  listAll(title: "Help Center", leading: Icon(Icons.info_outline_rounded,color: Colors.blueAccent,),clr: Colors.white),
-                listAll(title: "Log Out", leading: Icon(Icons.logout_outlined,color: Colors.black,),clr: Colors.blueAccent),
+                listAll(title: "Log Out", leading: Icon(Icons.logout_outlined,color: Colors.black,),clr: Colors.blueAccent, onTap: (){
+                  FirebaseAuth.instance.signOut();
+                  Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=> Login()));
+                }),
               ],
             ),
           ),
@@ -90,6 +98,7 @@ class _profileState extends State<profile> {
     required String title,
     required Icon leading,
     required Color clr,
+    var onTap,
 }) => Flexible(
   child:   Padding(
 
@@ -112,9 +121,7 @@ class _profileState extends State<profile> {
           title: Text(title),
 
           trailing: Icon(Icons.arrow_forward_ios),
-        onTap: (){
-            Navigator.of(context).push(MaterialPageRoute(builder: (context)=> profile_info()));
-        },
+        onTap: onTap,
 
 
         ),

@@ -66,7 +66,21 @@ class _signupState extends State<signup> {
                   ),
                 )..show();
                 print('The password provided is too weak.');
-              } else if (e.code == 'email-already-in-use') {
+              } else if(e.code == 'invalid-email'){
+                AwesomeDialog(
+                  borderSide: BorderSide(
+                      width: 3,
+                      color: Colors.blue
+                  ),
+                  context: context,
+                  title: "Error",
+                  body: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Text("This is not email address type",style: TextStyle(fontSize: 15,fontWeight: FontWeight.bold),),
+                  ),
+                )..show();
+              }
+              else if (e.code == 'email-already-in-use') {
                 AwesomeDialog(
                   borderSide: BorderSide(
                     width: 3,
@@ -161,10 +175,12 @@ class _signupState extends State<signup> {
                         UserCredential response = await signUp();
                         setState(() {
                           addUser();
+                          FirebaseAuth.instance.currentUser!.sendEmailVerification();
                         });
                         print("================");
                         if(response != null){
-                          Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=> home()));
+                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Check your Email to Verify")));
+                          Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=> Login()));
                         }else{
                           print("signUp failed");
                         }
@@ -172,7 +188,7 @@ class _signupState extends State<signup> {
                       }),
                   Center(child: Text("Or")),
                   btn(btnClr: Colors.white, btnTxt: "Log In", onTap: (){
-                    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=> login()));
+                    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=> Login()));
                   })
                 ],
               ),

@@ -1,8 +1,10 @@
 
 import 'package:dental_house/provider/event_provider.dart';
+import 'package:dental_house/service/fire_store.dart';
 import 'package:dental_house/views/editing/Utils.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../models/meeting.dart';
 import '../home_views/calendar_view.dart';
 import 'event_editing_page.dart';
 class EventViewingPage extends StatelessWidget {
@@ -68,8 +70,8 @@ onPressed: () => Navigator.of(context).pushReplacement(MaterialPageRoute(builder
 icon: Icon(Icons.edit),
 ),
 IconButton(onPressed: (){
-final provider = Provider.of<EventProvider>(context,listen: false);
-provider.deleteEvent(event);
+  final provider = Provider.of<EventProvider>(context, listen: false);
+  provider.deleteEvent(event);
 Navigator.of(context).pop();
 }, icon: Icon(Icons.delete)),
     ];

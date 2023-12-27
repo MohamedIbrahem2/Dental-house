@@ -1,62 +1,50 @@
 
+import 'package:dental_house/provider/event_provider.dart';
 import 'package:dental_house/views/home_views/calendar_view.dart';
-import 'package:dental_house/views/home_views/notification_view.dart';
-import 'package:dental_house/views/home_views/person_view.dart';
+import 'package:dental_house/views/home_views/patientList_view.dart';
+import 'package:dental_house/views/home_views/homePage_view.dart';
 import 'package:dental_house/views/home_views/profile.dart';
-import 'package:dental_house/views/home_views/settings_view.dart';
-import 'package:dental_house/views/login.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:dental_house/views/home_views/newPatient_view.dart';
 import 'package:flutter/material.dart';
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
-class home extends StatefulWidget {
+import 'package:provider/provider.dart';
+class Home extends StatefulWidget {
+  const Home({Key? key}) : super(key: key);
+
 
   @override
-  State<home> createState() => _homeState();
+  State<Home> createState() => _HomeState();
 }
 
-class _homeState extends State<home> {
+class _HomeState extends State<Home> {
 
-  getUser() async {
-    var user = FirebaseAuth.instance.currentUser;
-    print(user?.email);
-  }
-  @override
-  void initState(){
-    getUser();
-    super.initState();
-  }
-  int SelectedPage = 0;
-
-  final _pageNo = [person(),notifi(),profile(),settings(),calendar()];
+  final _pageNo = [ const profile(), const PatientList(),const HomePage(),const NewPatient(),const Calendar()];
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-            onPressed: (){
-              FirebaseAuth.instance.signOut();
-              Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=> login()));
-            },
-            icon: Icon(Icons.logout))
-      ),
-      bottomNavigationBar: ConvexAppBar(
-          items:[
-            TabItem(icon: Icons.calendar_month, title: 'person'),
-            TabItem(icon: Icons.notification_add, title: 'notifi'),
-            TabItem(icon: Icons.add,title: 'profile'),
-            TabItem(icon: Icons.settings, title: 'settings'),
-            TabItem(icon: Icons.person, title: 'calendar')
+    return Consumer<EventProvider>(builder: (context, model,child){
+      return Scaffold(
+        appBar: null,
+        bottomNavigationBar: ConvexAppBar(
+          items:const [
+            TabItem(icon: Icons.person_outline, title: 'Profile'),
+            TabItem(icon: Icons.contact_page_outlined, title: 'P List'),
+            TabItem(icon: Icons.home_outlined,title: 'Home'),
+            TabItem(icon: Icons.add, title: 'New P'),
+            TabItem(icon: Icons.calendar_month, title: 'Calendar')
           ],
-        style: TabStyle.reactCircle,
-        initialActiveIndex: SelectedPage,
-    onTap: (int i){
+          style: TabStyle.fixedCircle,
+          initialActiveIndex: model.selectedPage,
+          elevation: 5,
+          onTap: (int i){
             setState(() {
-              SelectedPage = i;
+              model.selectedPage = i;
             });
+          },
+        ),
+        body:
+        _pageNo[model.selectedPage],
+      );
     },
-      ),
-      body:
-      _pageNo[SelectedPage],
     );
   }
 }

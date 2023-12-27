@@ -1,8 +1,8 @@
 
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:dental_house/views/home_views/calendar_view.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:uuid/uuid.dart';
+import '../../models/meeting.dart';
 import '../../provider/event_provider.dart';
 import 'Utils.dart';
 class EventEditing extends StatefulWidget {
@@ -19,29 +19,19 @@ class EventEditing extends StatefulWidget {
 class _EventEditingState extends State<EventEditing> {
    bool check = false;
   final _formKey = GlobalKey<FormState>();
+   var uuid = const Uuid();
   final titleController = TextEditingController();
   final desController = TextEditingController();
   late DateTime fromDate;
   late DateTime toDate;
-   CollectionReference users = FirebaseFirestore.instance.collection('events');
-   Future<void> addUser() {
-     return users
-         .doc().set({
-       'eventname': titleController.text,
-       'desc': desController.text,
-       'allday': check,
-       'fromDate' : fromDate.millisecondsSinceEpoch,
-       'toDate' : toDate.microsecondsSinceEpoch
-     })
-         .then((value) => print("User Added"))
-         .catchError((error) => print("Failed to add user: $error"));
-   }
+  late String id;
   @override
   void initState(){
     super.initState();
     if(widget.event == null){
       fromDate = DateTime.now();
-      toDate = DateTime.now().add(Duration(hours: 2));
+      toDate = DateTime.now().add(const Duration(hours: 2));
+
     } else{
       final event = widget.event!;
       titleController.text = event.eventName;
@@ -49,6 +39,7 @@ class _EventEditingState extends State<EventEditing> {
       fromDate = event.from;
       toDate = event.to;
       check = event.isAllDay;
+      id = event.eventId;
     }
   }
   @override
@@ -85,7 +76,6 @@ class _EventEditingState extends State<EventEditing> {
     ElevatedButton.icon(
         onPressed: (){
           saveForm();
-          addUser();
         },
         icon: Icon(Icons.done),
         style: ElevatedButton.styleFrom(
@@ -255,21 +245,22 @@ class _EventEditingState extends State<EventEditing> {
       );
   Future saveForm() async {
     final isValid = _formKey.currentState!.validate();
+    final isEditing = widget.event != null;
     if(isValid){
       final event = Meeting(
           titleController.text,
           desController.text,
           fromDate,
-          Colors.blue,
           toDate,
-          check
+          check,
+          isEditing == false ? uuid.v4() : id,
       );
-      final isEditing = widget.event != null;
       final provider = Provider.of<EventProvider>(context, listen: false);
       if(isEditing){
         provider.editEvent(event, widget.event!);
       }else{
-        provider.addEvent(event);
+        provider.saveEvent(event);
+        print("Event add");
       }
       Navigator.of(context).pop();
     }
