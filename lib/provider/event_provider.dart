@@ -1,9 +1,21 @@
+import 'package:dental_house/models/pData.dart';
+import 'package:dental_house/models/teeth_part.dart';
 import 'package:flutter/material.dart';
 import 'package:dental_house/service/fire_store.dart';
+import 'package:flutter/services.dart';
+import 'package:touchable/touchable.dart';
 import '../models/meeting.dart';
+import 'package:xml/xml.dart';
 class EventProvider extends ChangeNotifier {
   final service = FireStoreService();
+  var myCanvas ;
+  var paint;
+  var paint2;
+  bool clicked = true;
+  var selectedTeethPart = [];
   final List<Meeting> _event = [];
+  final List<MyData> _list = [];
+  List<MyData> get lists => _list;
   int selectedPage = 2;
   List<Meeting> get events => _event;
   DateTime _selectedDate = DateTime.now();
@@ -38,5 +50,50 @@ class EventProvider extends ChangeNotifier {
     selectedPage = i;
     notifyListeners();
   }
-
+  setState(){
+    notifyListeners();
 }
+  MyData getSelectedItem(int index) {
+    return _list[index];
+  }
+  final List<GeneralBodyPart> teethPart = [];
+  Future<void> loadSvgImage({required String svgImage}) async {
+    String generalString = await rootBundle.loadString(svgImage);
+    teethPart.clear();
+    XmlDocument document = XmlDocument.parse(generalString);
+
+    final paths = document.findAllElements('path');
+
+    for (var element in paths) {
+
+      String partName = element.getAttribute('id').toString();
+      String partPath = element.getAttribute('d').toString();
+
+      if (!partName.contains('path')) {
+        GeneralBodyPart part = GeneralBodyPart(name: partName, path: partPath);
+        teethPart.add(part);
+
+      }
+
+    }
+    notifyListeners();
+  }
+  void selectTeethPart(String name){
+    if(selectedTeethPart.contains(name)){
+      selectedTeethPart.remove(name);
+    }else{
+      selectedTeethPart.add(name);
+    }
+    if(selectedTeethPart.isNotEmpty){
+      clicked = false;
+    }else{
+      clicked = true;
+    }
+
+
+    print(name);
+    notifyListeners();
+  }
+}
+
+

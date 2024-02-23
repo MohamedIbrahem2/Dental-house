@@ -24,11 +24,21 @@ class _signupState extends State<signup> {
   TextEditingController email = TextEditingController();
 
   TextEditingController pass = TextEditingController();
+  var currentFocus;
+
+  unFocus() {
+    currentFocus = FocusScope.of(context);
+    if (!currentFocus.hasPrimaryFocus) {
+      currentFocus.unfocus();
+    }
+  }
 
   GlobalKey<FormState> formState = GlobalKey<FormState>();
-  CollectionReference users = FirebaseFirestore.instance.collection('users');
+  CollectionReference users = FirebaseFirestore.instance.collection('Dental House');
   Future<void> addUser() {
     return users
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .collection('info')
         .doc('info').set({
       'first_name': fName.text,
       'last_name': lName.text,
@@ -106,95 +116,98 @@ class _signupState extends State<signup> {
   @override
   Widget build(BuildContext context) {
 
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      appBar: null,
-      body:
-      Stack(
-        children: [
-          SizedBox(
-            width: double.infinity,
-            height: double.infinity,
-            child: Image.asset("images/login-01.png", fit: BoxFit.fill,),
-          ),
-          Form(
-            key: formState,
-            child: Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: IconButton(
-                        onPressed: (){
-                          Navigator.of(context).pop();
-                        },
-                        icon: Icon((Icons.arrow_back_ios),color: Colors.white,)
+    return GestureDetector(
+      onTap: unFocus,
+      child: Scaffold(
+        resizeToAvoidBottomInset: false,
+        appBar: null,
+        body:
+        Stack(
+          children: [
+            SizedBox(
+              width: double.infinity,
+              height: double.infinity,
+              child: Image.asset("images/login-01.png", fit: BoxFit.fill,),
+            ),
+            Form(
+              key: formState,
+              child: Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: IconButton(
+                          onPressed: (){
+                            Navigator.of(context).pop();
+                          },
+                          icon: Icon((Icons.arrow_back_ios),color: Colors.white,)
+                      ),
                     ),
-                  ),
-                  Expanded(
-                    flex: 4,
-                    child: Text("Create \nAccount",style: TextStyle(
-                        color: Colors.white,fontSize: 35,fontWeight: FontWeight.bold
-                    )),
-                  ),
-                  txtField(onSaved: (val){
-                    firstName = val;
-                  }, ctrl: fName, txt1: "First Name can't to be longer than 100 letter",
-                      txt2: "First Name can't to be less than 2 letter",
-                      num: 2, txtInput: TextInputType.name, hntTxt: "Type First Name", secure: false,
-                      labText: "First name", pre: Icon(Icons.person_outline), suffix: null),
-                  txtField(onSaved: (val){
-                    lastName = val;
-                  }, ctrl: lName, txt1: "Last Name can't to be longer than 100 letter",
-                      txt2: "Last Name can't to be less than 2 letter",
-                      num: 2, txtInput: TextInputType.name, hntTxt: "Type Last Name", secure: false,
-                      labText: "Last name", pre: Icon(Icons.person_outline), suffix: null),
-                  txtField(onSaved: (val){
-                    myemail = val;
-                  }, ctrl: email, txt1: "Email can't to be longer than 100 letter",
-                      txt2: "Email can't to be less than 2 letter",
-                      num: 2, txtInput: TextInputType.emailAddress, hntTxt: "Type Email", secure: false,
-                      labText: "Email", pre: Icon(Icons.email_outlined), suffix: null),
-                  txtField(onSaved: (val){
-                    password = val;
-                  }, ctrl: pass, txt1: "password can't to be longer than 100 letter",
-                      txt2: "password can't to be less than 4 letter",
-                      num: 4, txtInput: TextInputType.visiblePassword, hntTxt: "Type Password", labText: "Password",
-                      pre: Icon(Icons.lock_outline), suffix: IconButton(onPressed: (){
-                        setState(() {
-                          if(secure == true){
-                            secure = false;
+                    Expanded(
+                      flex: 4,
+                      child: Text("Create \nAccount",style: TextStyle(
+                          color: Colors.white,fontSize: 35,fontWeight: FontWeight.bold
+                      )),
+                    ),
+                    txtField(onSaved: (val){
+                      firstName = val;
+                    }, ctrl: fName, txt1: "First Name can't to be longer than 100 letter",
+                        txt2: "First Name can't to be less than 2 letter",
+                        num: 2, txtInput: TextInputType.name, hntTxt: "Type First Name", secure: false,
+                        labText: "First name", pre: Icon(Icons.person_outline), suffix: null),
+                    txtField(onSaved: (val){
+                      lastName = val;
+                    }, ctrl: lName, txt1: "Last Name can't to be longer than 100 letter",
+                        txt2: "Last Name can't to be less than 2 letter",
+                        num: 2, txtInput: TextInputType.name, hntTxt: "Type Last Name", secure: false,
+                        labText: "Last name", pre: Icon(Icons.person_outline), suffix: null),
+                    txtField(onSaved: (val){
+                      myemail = val;
+                    }, ctrl: email, txt1: "Email can't to be longer than 100 letter",
+                        txt2: "Email can't to be less than 2 letter",
+                        num: 2, txtInput: TextInputType.emailAddress, hntTxt: "Type Email", secure: false,
+                        labText: "Email", pre: Icon(Icons.email_outlined), suffix: null),
+                    txtField(onSaved: (val){
+                      password = val;
+                    }, ctrl: pass, txt1: "password can't to be longer than 100 letter",
+                        txt2: "password can't to be less than 4 letter",
+                        num: 4, txtInput: TextInputType.visiblePassword, hntTxt: "Type Password", labText: "Password",
+                        pre: Icon(Icons.lock_outline), suffix: IconButton(onPressed: (){
+                          setState(() {
+                            if(secure == true){
+                              secure = false;
+                            }else{
+                              secure = true;
+                            }
+                          });
+                        }, icon: Icon(secure == true ? Icons.visibility_outlined : Icons.visibility_off_outlined)), secure: secure),
+                    btn(btnClr: Colors.blueAccent, btnTxt: "Sign Up",
+                        onTap: () async{
+                          UserCredential response = await signUp();
+                          setState(() {
+                            addUser();
+                            FirebaseAuth.instance.currentUser!.sendEmailVerification();
+                          });
+                          print("================");
+                          if(response != null){
+                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Check your Email to Verify")));
+                            Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=> Login()));
                           }else{
-                            secure = true;
+                            print("signUp failed");
                           }
-                        });
-                      }, icon: Icon(secure == true ? Icons.visibility_outlined : Icons.visibility_off_outlined)), secure: secure),
-                  btn(btnClr: Colors.blueAccent, btnTxt: "Sign Up",
-                      onTap: () async{
-                        UserCredential response = await signUp();
-                        setState(() {
-                          addUser();
-                          FirebaseAuth.instance.currentUser!.sendEmailVerification();
-                        });
-                        print("================");
-                        if(response != null){
-                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Check your Email to Verify")));
-                          Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=> Login()));
-                        }else{
-                          print("signUp failed");
-                        }
-                        print("================");
-                      }),
-                  Center(child: Text("Or")),
-                  btn(btnClr: Colors.white, btnTxt: "Log In", onTap: (){
-                    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=> Login()));
-                  })
-                ],
+                          print("================");
+                        }),
+                    Center(child: Text("Or")),
+                    btn(btnClr: Colors.white, btnTxt: "Log In", onTap: (){
+                      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=> Login()));
+                    })
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

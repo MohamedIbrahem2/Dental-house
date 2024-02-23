@@ -25,6 +25,7 @@ class _HomeState extends State<Home> {
       return Scaffold(
         appBar: null,
         bottomNavigationBar: ConvexAppBar(
+          backgroundColor: Colors.blueAccent,
           items:const [
             TabItem(icon: Icons.person_outline, title: 'Profile'),
             TabItem(icon: Icons.contact_page_outlined, title: 'P List'),

@@ -17,6 +17,14 @@ class Login extends StatefulWidget {
 class _LoginState extends State<Login> {
   TextEditingController email = TextEditingController();
   TextEditingController pass = TextEditingController();
+  var currentFocus;
+
+  unFocus() {
+    currentFocus = FocusScope.of(context);
+    if (!currentFocus.hasPrimaryFocus) {
+      currentFocus.unfocus();
+    }
+  }
   bool secure = true;
   bool  _isLoading = false;
   GlobalKey<FormState> formState = GlobalKey<FormState>();
@@ -37,14 +45,14 @@ class _LoginState extends State<Login> {
         );
         if(userCredential.user!.emailVerified){
         }else{
-          dialog(dialog: DialogType.SUCCES, text: "Check your email to Verify your Account").show();
+          dialog(dialog: DialogType.success, text: "Check your email to Verify your Account").show();
         }
         return userCredential;
       } on FirebaseAuthException catch (e) {
         if (e.code == 'user-not-found') {
-          dialog(dialog: DialogType.ERROR, text: "No user found for that email").show();
+          dialog(dialog: DialogType.error, text: "No user found for that email").show();
         } else if (e.code == 'wrong-password') {
-          dialog(dialog: DialogType.ERROR, text: "Wrong password provided for that user").show();
+          dialog(dialog: DialogType.error, text: "Wrong password provided for that user").show();
         }
       }
     }
@@ -52,101 +60,104 @@ class _LoginState extends State<Login> {
   @override
   Widget build(BuildContext context) {
 
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      appBar: null,
-      body:
-      Stack(
-        children: [
-          SizedBox(
-            width: double.infinity,
-            height: double.infinity,
-            child: Image.asset("images/login-01.png", fit: BoxFit.fill,),
-          ),
-          Form(
-            key: formState,
-            child: Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: IconButton(
-                        onPressed: (){
-                          Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=> startup()));
-                        },
-                        icon: const Icon((Icons.arrow_back_ios),color: Colors.white,)
+    return GestureDetector(
+      onTap: unFocus,
+      child: Scaffold(
+        resizeToAvoidBottomInset: false,
+        appBar: null,
+        body:
+        Stack(
+          children: [
+            SizedBox(
+              width: double.infinity,
+              height: double.infinity,
+              child: Image.asset("images/login-01.png", fit: BoxFit.fill,),
+            ),
+            Form(
+              key: formState,
+              child: Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: IconButton(
+                          onPressed: (){
+                            Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=> startup()));
+                          },
+                          icon: const Icon((Icons.arrow_back_ios),color: Colors.white,)
+                      ),
                     ),
-                  ),
-                  const Expanded(
-                    flex: 4,
-                    child: Text("Welcome \nBack",style: TextStyle(
-                      color: Colors.white,fontSize: 35,fontWeight: FontWeight.bold
-                    )),
-                  ),
-                  txtField(onSaved: (val){
-                    myEmail = val!;
-                  }, ctrl: email, txt1: "Email can't to be longer than 100 letter",
-                      txt2: "Email can't to be less than 2 letter",
-                      num: 2, txtInput: TextInputType.emailAddress, hntTxt: "Type Email", labText: "Email",
-                      pre: const Icon(Icons.email_outlined), suffix: null, secure: false),
-                  txtField(onSaved: (val){
-                    myPassword = val!;
-                  }, ctrl: pass, txt1: "Password can't to be longer than 100 letter",
-                      txt2: "Password can't to be less than 4 letter",
-                      num: 4, txtInput: TextInputType.visiblePassword, hntTxt: "Type Password", labText: "Pass",
-                      pre: const Icon(Icons.lock_outline), suffix: IconButton(onPressed: (){
-                        setState(() {
-                          if(secure == true){
-                            secure = false;
-                          }else{
-                            secure = true;
-                          }
-                        });
-                      }, icon: Icon(secure == true ? Icons.visibility_outlined : Icons.visibility_off_outlined)), secure: secure),
-                  Center(child: TextButton(onPressed: () async{
-                    if(email.text == ""){
-                      dialog(dialog: DialogType.ERROR, text: "Please type your Email then press forget password").show();
-                      return;
-                    }
-                    try {
-                      await FirebaseAuth.instance.sendPasswordResetEmail(email: email.text);
-                      dialog(dialog: DialogType.SUCCES, text: "We send reset password link to your email").show();
-                    }catch (e) {
-                      dialog(dialog: DialogType.ERROR, text: "No user found For that Email").show();
-                    }
-
-                  }, child: const Text("Forget Password?"))),
-                  btn(btnClr: Colors.blueAccent, btnTxt: "Log In",
-                      onTap: ()async{
-                        var user =  await signIn();
-                        if(user != null && FirebaseAuth.instance.currentUser!.emailVerified){
-                          Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=>const Home()));
-                      }else{
-                          _isLoading = false;
+                    const Expanded(
+                      flex: 4,
+                      child: Text("Welcome \nBack",style: TextStyle(
+                        color: Colors.white,fontSize: 35,fontWeight: FontWeight.bold
+                      )),
+                    ),
+                    txtField(onSaved: (val){
+                      myEmail = val!;
+                    }, ctrl: email, txt1: "Email can't to be longer than 100 letter",
+                        txt2: "Email can't to be less than 2 letter",
+                        num: 2, txtInput: TextInputType.emailAddress, hntTxt: "Type Email", labText: "Email",
+                        pre: const Icon(Icons.email_outlined), suffix: null, secure: false),
+                    txtField(onSaved: (val){
+                      myPassword = val!;
+                    }, ctrl: pass, txt1: "Password can't to be longer than 100 letter",
+                        txt2: "Password can't to be less than 4 letter",
+                        num: 4, txtInput: TextInputType.visiblePassword, hntTxt: "Type Password", labText: "Pass",
+                        pre: const Icon(Icons.lock_outline), suffix: IconButton(onPressed: (){
                           setState(() {
-
+                            if(secure == true){
+                              secure = false;
+                            }else{
+                              secure = true;
+                            }
                           });
-                        }
+                        }, icon: Icon(secure == true ? Icons.visibility_outlined : Icons.visibility_off_outlined)), secure: secure),
+                    Center(child: TextButton(onPressed: () async{
+                      if(email.text == ""){
+                        dialog(dialog: DialogType.ERROR, text: "Please type your Email then press forget password").show();
+                        return;
+                      }
+                      try {
+                        await FirebaseAuth.instance.sendPasswordResetEmail(email: email.text);
+                        dialog(dialog: DialogType.SUCCES, text: "We send reset password link to your email").show();
+                      }catch (e) {
+                        dialog(dialog: DialogType.ERROR, text: "No user found For that Email").show();
+                      }
+
+                    }, child: const Text("Forget Password?"))),
+                    btn(btnClr: Colors.blueAccent, btnTxt: "Log In",
+                        onTap: ()async{
+                          var user =  await signIn();
+                          if(user != null && FirebaseAuth.instance.currentUser!.emailVerified){
+                            Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=>const Home()));
+                        }else{
+                            _isLoading = false;
+                            setState(() {
+
+                            });
+                          }
 
 
-                  }),
-                  const Center(child: Text("Or")),
-                  btn(btnClr: Colors.white, btnTxt: "Sign Up",
-                      onTap: (){
-                        Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=>signup()));
-                      }),
-                ],
+                    }),
+                    const Center(child: Text("Or")),
+                    btn(btnClr: Colors.white, btnTxt: "Sign Up",
+                        onTap: (){
+                          Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=>signup()));
+                        }),
+                  ],
+                ),
               ),
             ),
-          ),
-          _isLoading ? Container(
-            color: Colors.black.withOpacity(0.5),
-            child: const Center(
-              child: CircularProgressIndicator(),
-            ),
-          ) : const SizedBox()
-        ],
+            _isLoading ? Container(
+              color: Colors.black.withOpacity(0.5),
+              child: const Center(
+                child: CircularProgressIndicator(),
+              ),
+            ) : const SizedBox()
+          ],
+        ),
       ),
     );
   }

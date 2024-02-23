@@ -1,5 +1,4 @@
-import 'package:flutter/cupertino.dart';
-import 'package:provider/provider.dart';
+
 
 class Meeting{
   Meeting(this.eventName,this.description, this.from, this.to,this.isAllDay,this.eventId);

@@ -25,6 +25,14 @@ class _EventEditingState extends State<EventEditing> {
   late DateTime fromDate;
   late DateTime toDate;
   late String id;
+   var currentFocus;
+
+   unFocus() {
+     currentFocus = FocusScope.of(context);
+     if (!currentFocus.hasPrimaryFocus) {
+       currentFocus.unfocus();
+     }
+   }
   @override
   void initState(){
     super.initState();
@@ -48,26 +56,29 @@ class _EventEditingState extends State<EventEditing> {
     super.dispose();
   }
   @override
-  Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(
-      leading: CloseButton(),
-      actions: buildEditingActions(),
-    ),
-    body: SingleChildScrollView(
-      padding: EdgeInsets.all(12),
-      child: Form(
-        key: _formKey,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-              buildTitle(),
-            SizedBox(height: 12,),
-            buildDateTimePacker(),
-            SizedBox(height: 12,),
-            checkBox(),
-            SizedBox(height: 12,),
-            description(),
-          ],
+  Widget build(BuildContext context) => GestureDetector(
+    onTap: unFocus,
+    child: Scaffold(
+      appBar: AppBar(
+        leading: CloseButton(),
+        actions: buildEditingActions(),
+      ),
+      body: SingleChildScrollView(
+        padding: EdgeInsets.all(12),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+                buildTitle(),
+              SizedBox(height: 12,),
+              buildDateTimePacker(),
+              SizedBox(height: 12,),
+              checkBox(),
+              SizedBox(height: 12,),
+              description(),
+            ],
+          ),
         ),
       ),
     ),

@@ -1,6 +1,7 @@
 import 'dart:ffi';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:progress_dialog_null_safe/progress_dialog_null_safe.dart';
 class profile_info extends StatefulWidget {
@@ -13,14 +14,16 @@ class _profile_infoState extends State<profile_info> {
   bool check = false;
   bool check1 = false;
   bool edit = false;
-  bool _isLoading = false;
   TextEditingController first = TextEditingController();
   TextEditingController last = TextEditingController();
   TextEditingController email = TextEditingController();
   TextEditingController date = TextEditingController();
-  CollectionReference users = FirebaseFirestore.instance.collection('users');
+  GlobalKey<FormState> formState = GlobalKey<FormState>();
+  CollectionReference users = FirebaseFirestore.instance.collection('Dental House');
   Future<void> addUser() {
     return users
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .collection('info')
         .doc('info').update({
       'first_name': first.text,
       'last_name': last.text,// John Doe
@@ -36,78 +39,103 @@ class _profile_infoState extends State<profile_info> {
         appBar: null,
         body:
         FutureBuilder<DocumentSnapshot>(
-          future: users.doc('info').get(),
+          future: users
+              .doc(FirebaseAuth.instance.currentUser!.uid)
+              .collection('info')
+              .doc('info').get(),
           builder: (BuildContext context,AsyncSnapshot<DocumentSnapshot> snapshot) {
             if(snapshot.connectionState == ConnectionState.done){
               Map<String, dynamic> data = snapshot.data!.data() as Map<String, dynamic>;
-            return SafeArea(
-              child: Column(
-                children: [
-                  ListTile(
-                      leading: IconButton(
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                          icon: const Icon(
-                            Icons.arrow_back_ios_new, color: Colors.black,
-                            size: 20,)),
+              email.text = data['Email'];
+              first.text = data['first_name'];
+              last.text = data['last_name'];
+            return Form(
+              key: formState,
+              child: SafeArea(
+                child: Column(
+                  children: [
+                    ListTile(
+                        leading: IconButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                            icon: const Icon(
+                              Icons.arrow_back_ios_new, color: Colors.black,
+                              size: 20,)),
 
-                      title: const Text("Account Info", style: TextStyle(
-                          fontSize: 20, fontWeight: FontWeight.bold),),
-                      trailing: edit == false ? TextButton(
-                          onPressed: () {
-                            setState(() {
-                              edit = true;
-                            });
-                          },
-                          child: const Text("Edit",
-                            style: TextStyle(color: Colors.blueAccent,
-                                fontSize: 15,
-                                fontWeight: FontWeight.bold),))
-                          : IconButton(
-                          onPressed: () {
-                            setState(() {
-                              addUser();
-                              edit = false;
-                            });
-                          },
-                          icon: Icon(Icons.check,
-                            color: Colors.blueAccent,))
-                  ),
-                  edit == true ? profileData(
-                      txt: "Email", ctrl: email, init: null)
-                      : profileData(
-                      txt: "Email", ctrl: null, init: "${data['Email']}"),
-                  edit == true ? profileData(
-                      txt: "First Name", ctrl: first, init: null) :
-                  profileData(txt: "First Name",
-                      ctrl: null,
-                      init: "${data['first_name']}"),
-                  edit == true ? profileData(
-                      txt: "Last Name", ctrl: last, init: null) :
-                  profileData(txt: "Last Name",
-                      ctrl: null,
-                      init: "${data['last_name']}"),
-                  profileData(
-                      txt: "Date Of Birth (Optional)", ctrl: date, init: null),
-                  cirButton(name: "Male", name1: "Female"),
-                  Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: Card(
-                      color: Colors.blueAccent,
-                      elevation: 3,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15)),
-                      child: ListTile(
-                        title: Center(
-                            child: Text("Delete Account", style: TextStyle(
-                                fontSize: 18, fontWeight: FontWeight.bold),)),
-                        onTap: () {},
+                        title: const Text("Account Info", style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.bold),),
+                        trailing: edit == false ? TextButton(
+                            onPressed: () {
+                              setState(() {
+                                edit = true;
+                              });
+                            },
+                            child: const Text("Edit",
+                              style: TextStyle(color: Colors.blueAccent,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold),))
+                            : IconButton(
+                            onPressed: () {
+                              if(formState.currentState!.validate()){
+                                setState(() {
+                                  addUser();
+                                  edit = false;
+                                });
+                              }
+                            },
+                            icon: Icon(Icons.check,
+                              color: Colors.blueAccent,))
+                    ),
+                     profileData(
+                        txt: "Email", ctrl: null, init: data['Email'], enable: false),
+                    edit == true ? profileData(
+                        txt: "First Name", ctrl: first, init: null, enable: true,Funcation: (val){
+                      if(val!.length> 100){
+                        return "name can't be more than 100 latter";
+                      }
+                      if(val.length < 2){
+                        return "name can't be less than 2 latter";
+                      }
+                      return null;
+                    },) :
+                    profileData(txt: "First Name",
+                        ctrl: null,
+                        init: data['first_name'], enable: false,),
+                    edit == true ? profileData(
+                        txt: "Last Name", ctrl: last, init: null, enable: true,Funcation: (val){
+                      if(val!.length> 100){
+                        return "name can't be more than 100 latter";
+                      }
+                      if(val.length < 2){
+                        return "name can't be less than 2 latter";
+                      }
+                      return null;
+                    },) :
+                    profileData(txt: "Last Name",
+                        ctrl: null,
+                        init: data['last_name'], enable: false),
+                    profileData(
+                        txt: "Date Of Birth (Optional)", ctrl: date, init: null, enable: true),
+                    cirButton(name: "Male", name1: "Female"),
+                    Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: Card(
+                        color: Colors.blueAccent,
+                        elevation: 3,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15)),
+                        child: ListTile(
+                          title: Center(
+                              child: Text("Delete Account", style: TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.bold),)),
+                          onTap: () {},
+                        ),
                       ),
                     ),
-                  ),
 
-                ],
+                  ],
+                ),
               ),
             );
             } else {
@@ -121,6 +149,8 @@ class _profile_infoState extends State<profile_info> {
     required String txt,
     required var ctrl,
     required var init,
+    required bool enable,
+    String? Funcation(String)?,
 
 })=> Expanded(
   child:   Padding(
@@ -134,8 +164,9 @@ class _profile_infoState extends State<profile_info> {
         child: TextFormField(
 
         keyboardType: TextInputType.name,
+        validator: Funcation,
 
-        enabled: edit == false ? false : true,
+        enabled: enable,
         controller: ctrl,
 
         initialValue: init,

@@ -1,4 +1,5 @@
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dental_house/provider/event_provider.dart';
 import 'package:dental_house/views/home.dart';
 import 'package:dental_house/views/startup.dart';
@@ -34,6 +35,12 @@ void main() async {
         ChangeNotifierProvider.value(value: EventProvider()),
       ],
         child:MaterialApp(
+          theme: ThemeData(
+            primarySwatch: Colors.blue,
+                floatingActionButtonTheme: FloatingActionButtonThemeData(
+                  backgroundColor: Colors.blueAccent
+                ),
+          ),
             debugShowCheckedModeBanner: false,
             home: isLogin == false ? startup() : const Home(),
             //home : calendar()

@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dental_house/provider/event_provider.dart';
 import 'package:dental_house/views/editing/event_editing_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:flutter/material.dart';
@@ -31,7 +32,11 @@ class _CalendarState extends State<Calendar> {
       ),
       body:
       StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance.collection('Events').snapshots(),
+        stream: FirebaseFirestore.instance
+            .collection('Dental House')
+            .doc(FirebaseAuth.instance.currentUser!.uid)
+            .collection('events')
+            .snapshots(),
         builder: (context, snapshot) {
           if(snapshot.hasData) {
             final eventDocument = snapshot.data!.docs;
@@ -55,6 +60,7 @@ class _CalendarState extends State<Calendar> {
 
             return SafeArea(
               child: SfCalendar(
+                todayHighlightColor: Colors.blueAccent,
                 view: CalendarView.month,
                 firstDayOfWeek: 6,
                 initialSelectedDate: DateTime.now(),
