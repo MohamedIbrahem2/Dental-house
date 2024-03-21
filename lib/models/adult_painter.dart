@@ -1,27 +1,27 @@
 
 import 'package:dental_house/models/teeth_part.dart';
 import 'package:dental_house/provider/event_provider.dart';
+import 'package:dental_house/views/Patients_Info_views/dental_notes.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:svg_path_parser/svg_path_parser.dart';
 import 'package:touchable/touchable.dart';
 
+import 'pData.dart';
+
 class AdultPainter extends CustomPainter {
   final BuildContext context;
   final EventProvider model;
-  final String svg;
-  final String id;
+  final MyData myList;
 
   AdultPainter({
+    required this.myList,
     required this.context,
     required this.model,
-    required this.svg,
-    required this.id
   });
   @override
   void paint(Canvas canvas, Size size) {
-    model.loadSvgImage(svgImage: svg);
      model.myCanvas = TouchyCanvas(context, canvas);
      model.paint = Paint()
       ..style = PaintingStyle.fill
@@ -47,6 +47,9 @@ class AdultPainter extends CustomPainter {
         model.paint2.color = Colors.red;
       }else{
       }
+      if(model.selectedTeethNote.contains(muscle.name)){
+        model.paint.color = model.tileColor;
+      }
       model.myCanvas.drawPath(
         path.transform(matrix4.storage),
         model.paint,
@@ -58,8 +61,12 @@ class AdultPainter extends CustomPainter {
         path.transform(matrix4.storage),
         model.paint2,
         onTapDown: (details) {
-          // addTeeth(id, muscle.name);
-          model.selectTeethPart(muscle.name);
+          if(model.selectedTeethNote.contains(muscle.name)){
+            Navigator.push(context, MaterialPageRoute(builder: (context)=>DentalNotes(myList: myList)));
+          }else{
+            model.selectTeethPart(muscle.name);
+          }
+
         },
       );
     }

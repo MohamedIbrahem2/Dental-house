@@ -1,9 +1,9 @@
 import 'package:dental_house/models/pData.dart';
+import 'package:dental_house/models/procedureModel.dart';
 import 'package:dental_house/models/teeth_part.dart';
 import 'package:flutter/material.dart';
 import 'package:dental_house/service/fire_store.dart';
 import 'package:flutter/services.dart';
-import 'package:touchable/touchable.dart';
 import '../models/meeting.dart';
 import 'package:xml/xml.dart';
 class EventProvider extends ChangeNotifier {
@@ -11,8 +11,15 @@ class EventProvider extends ChangeNotifier {
   var myCanvas ;
   var paint;
   var paint2;
+  var documents;
+   Color tileColor = Colors.yellow;
   bool clicked = true;
+  late List<bool> ischecked  = List<bool>.filled(documents.length, false);
+
+  final List<MyProcedure> procedure = [];
+  final List lines = [];
   var selectedTeethPart = [];
+  var selectedTeethNote = [];
   final List<Meeting> _event = [];
   final List<MyData> _list = [];
   List<MyData> get lists => _list;
@@ -92,6 +99,21 @@ class EventProvider extends ChangeNotifier {
 
 
     print(name);
+    notifyListeners();
+  }
+  void addPro(){
+    ischecked = List<bool>.filled(documents.length, false);
+    notifyListeners();
+  }
+  void addTeeth(){
+    selectedTeethNote.addAll(selectedTeethPart);
+    selectedTeethPart.clear();
+    clicked = true;
+    notifyListeners();
+  }
+  void addPro1(List<String> teeth){
+    selectedTeethNote.addAll(teeth);
+    print(selectedTeethNote.first);
     notifyListeners();
   }
 }
