@@ -1,23 +1,64 @@
 import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dental_house/provider/event_provider.dart';
+import 'package:dental_house/views/home_views/profile_views/help_center.dart';
 import 'package:dental_house/views/home_views/profile_views/profile_info.dart';
+import 'package:dental_house/views/home_views/profile_views/settings.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 
+import '../../models/pData.dart';
 import '../login.dart';
-class profile extends StatefulWidget {
-  const profile({Key? key}) : super(key: key);
+class Profile extends StatefulWidget {
+  const Profile({Key? key}) : super(key: key);
+
+
 
   @override
-  State<profile> createState() => _profileState();
+  State<Profile> createState() => _ProfileState();
 }
 
-class _profileState extends State<profile> {
+
+class _ProfileState extends State<Profile> {
+  String name = '';
   late String pic;
   bool ispic = false;
   File? image;
+  late String url;
+  CollectionReference users = FirebaseFirestore.instance.collection('Dental House');
+  void getUsersData() {
+    users.doc(FirebaseAuth.instance.currentUser!.uid)
+        .collection("info")
+        .doc("info")
+        .get().then((value) {
+      var fields = value.data();
+      setState(() {
+        name = fields?['first_name'] + fields?['last_name'];
+      });
+    });
+  }
+  Future<void> addPhoto() async{
+    final ref = FirebaseStorage.instance
+        .ref()
+        .child('doctorsimages')
+        .child(name + '.jpg');
+        await ref.putFile(image!);
+        url = await ref.getDownloadURL();
+    return users
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .collection('info')
+        .doc('photo')
+        .set({
+      'photo': url,
+    })
+        .then((value) => print("User Added"))
+        .catchError((error) => print("Failed to add user: $error"));
+  }
   Future pickImage() async{
     try {
       final image = await ImagePicker().pickImage(
@@ -28,9 +69,16 @@ class _profileState extends State<profile> {
       }
       final imageTemporary = File(image.path);
       setState(() => this.image = imageTemporary);
+      await addPhoto();
+
     } on PlatformException catch (e){
       print('Failed to pick image: $e');
     }
+  }
+  @override
+  void initState(){
+    super.initState();
+    getUsersData();
   }
   @override
   Widget build(BuildContext context) {
@@ -46,12 +94,12 @@ class _profileState extends State<profile> {
                     child: Stack(
                       fit: StackFit.expand,
                       children: [
-                        image != null ?
+                        //image != null ?
                           ClipOval(
-                            child: Image.file(image!,fit: BoxFit.cover,
+                            child: Image.asset("images/person.png",fit: BoxFit.cover,
                             ),
-                          )
-                              : FlutterLogo(),
+                          ),
+                             // : FlutterLogo(),
 
                         Positioned(
                           right: 0,
@@ -68,7 +116,7 @@ class _profileState extends State<profile> {
                                   ),
                                     backgroundColor: MaterialStateProperty.all(Colors.grey),
                                 ),
-                                onPressed: () {
+                                onPressed: () async{
                                   pickImage();
                                 },
                                 child: SvgPicture.asset("images/camera.svg"),
@@ -82,8 +130,12 @@ class _profileState extends State<profile> {
                   Navigator.of(context).push(MaterialPageRoute(builder: (context)=> profile_info()));
                 }),
                 listAll(title: "Notifications", leading: Icon(Icons.notifications_none,color: Colors.blueAccent,),clr: Colors.white),
-                listAll(title: "Settings", leading: Icon(Icons.settings_outlined,color: Colors.blueAccent,),clr: Colors.white),
-                 listAll(title: "Help Center", leading: Icon(Icons.info_outline_rounded,color: Colors.blueAccent,),clr: Colors.white),
+                listAll(onTap: (){
+                  Navigator.push(context, MaterialPageRoute(builder: (context)=> Setting()));
+                },title: "Settings", leading: Icon(Icons.settings_outlined,color: Colors.blueAccent,),clr: Colors.white),
+                 listAll(onTap: (){
+                   Navigator.push(context, MaterialPageRoute(builder: (context)=>Help()));
+                 },title: "Help Center", leading: Icon(Icons.info_outline_rounded,color: Colors.blueAccent,),clr: Colors.white),
                 listAll(title: "Log Out", leading: Icon(Icons.logout_outlined,color: Colors.black,),clr: Colors.blueAccent, onTap: (){
                   FirebaseAuth.instance.signOut();
                   Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=> Login()));

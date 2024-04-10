@@ -2,8 +2,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:provider/provider.dart';
 
 import '../../models/pData.dart';
+import '../../provider/event_provider.dart';
 
 class DentalNotes extends StatelessWidget {
   final MyData myList;
@@ -12,20 +14,10 @@ class DentalNotes extends StatelessWidget {
     Key? key,
     required this.myList,
   }) : super(key: key);
-  Future<void> deleteNote(String toothNum) async {
-    final CollectionReference dataCollection =
-    FirebaseFirestore.instance.collection('Dental House');
-    await dataCollection
-        .doc(FirebaseAuth.instance.currentUser!.uid)
-        .collection('patients')
-        .doc(myList.id)
-        .collection('dentalNotes')
-        .doc(toothNum).delete();
-  }
-
 
   @override
   Widget build(BuildContext context) {
+    final provider = Provider.of<EventProvider>(context, listen: false);
     return StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection('Dental House')
@@ -94,7 +86,12 @@ class DentalNotes extends StatelessWidget {
                                 if(clr == "Color(0xff000000)"){
                                   clr = clr.replaceAll("Color(", "");
                                   clr = clr.replaceAll(")", "");
-                                }else{
+                                }else if(clr == "ColorSwatch(primary value: Color(0xff9c27b0))"){
+                                  clr = clr.replaceAll("ColorSwatch(primary value: ", "");
+                                  clr = clr.replaceAll("Color(", "");
+                                  clr = clr.replaceAll("))", "");
+                                }
+                                else{
                                   clr = clr.replaceAll(
                                       "MaterialColor(primary value: ", "");
                                   clr = clr.replaceAll("Color(", "");
@@ -170,7 +167,10 @@ class DentalNotes extends StatelessWidget {
                                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15),side: BorderSide(width: 3,color: Colors.blueAccent)),
                                               elevation: 3,
                                               child: IconButton(onPressed: (){
-                                                deleteNote(data['toothNumber']);
+                                                provider.toothClr.removeAt(index);
+                                                provider.i--;
+                                                provider.selectedTeethNote.removeAt(index);
+                                                deleteNote(data['toothNumber'],myList.id);
                                               }, icon: Icon(Icons.delete))),
                                         ],
                                       )

@@ -1,6 +1,7 @@
 import 'package:dental_house/models/pData.dart';
 import 'package:dental_house/models/procedureModel.dart';
 import 'package:dental_house/models/teeth_part.dart';
+import 'package:dental_house/models/tooth_color.dart';
 import 'package:flutter/material.dart';
 import 'package:dental_house/service/fire_store.dart';
 import 'package:flutter/services.dart';
@@ -9,17 +10,21 @@ import 'package:xml/xml.dart';
 class EventProvider extends ChangeNotifier {
   final service = FireStoreService();
   var myCanvas ;
+  int i = 0;
   var paint;
   var paint2;
   var documents;
+  String lastName = '';
+  String name = '';
+  final List<MyColor> toothClr  = [];
    Color tileColor = Colors.yellow;
   bool clicked = true;
   late List<bool> ischecked  = List<bool>.filled(documents.length, false);
 
   final List<MyProcedure> procedure = [];
   final List lines = [];
-  var selectedTeethPart = [];
-  var selectedTeethNote = [];
+  List<String> selectedTeethPart = [];
+  List<String> selectedTeethNote = [];
   final List<Meeting> _event = [];
   final List<MyData> _list = [];
   List<MyData> get lists => _list;
@@ -57,9 +62,6 @@ class EventProvider extends ChangeNotifier {
     selectedPage = i;
     notifyListeners();
   }
-  setState(){
-    notifyListeners();
-}
   MyData getSelectedItem(int index) {
     return _list[index];
   }
@@ -108,12 +110,14 @@ class EventProvider extends ChangeNotifier {
   void addTeeth(){
     selectedTeethNote.addAll(selectedTeethPart);
     selectedTeethPart.clear();
+    i = toothClr.length;
     clicked = true;
     notifyListeners();
   }
-  void addPro1(List<String> teeth){
-    selectedTeethNote.addAll(teeth);
-    print(selectedTeethNote.first);
+  void addPro1(String teeth, Color clr){
+    selectedTeethNote.add(teeth);
+    toothClr.add(MyColor(name: teeth, clr: clr));
+    i = toothClr.length;
     notifyListeners();
   }
 }

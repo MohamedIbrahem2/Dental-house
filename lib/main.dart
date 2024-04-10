@@ -1,6 +1,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dental_house/provider/event_provider.dart';
+import 'package:dental_house/views/Patients_Info_views/patients_photo.dart';
 import 'package:dental_house/views/home.dart';
 import 'package:dental_house/views/startup.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -43,7 +44,6 @@ void main() async {
           ),
             debugShowCheckedModeBanner: false,
             home: isLogin == false ? startup() : const Home(),
-            //home : calendar()
           //home: home(),
         ),
 

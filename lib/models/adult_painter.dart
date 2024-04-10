@@ -37,7 +37,6 @@ class AdultPainter extends CustomPainter {
       ..strokeWidth = 3.0;
 
     List<GeneralBodyPart> generalParts = model.teethPart;
-
     generalParts.forEach((muscle) {
       Path path = parseSvgPath(muscle.path);
       model.paint.color = Colors.blue;
@@ -47,8 +46,47 @@ class AdultPainter extends CustomPainter {
         model.paint2.color = Colors.red;
       }else{
       }
-      if(model.selectedTeethNote.contains(muscle.name)){
-        model.paint.color = model.tileColor;
+      if(model.selectedTeethNote.isEmpty || model.toothClr.isEmpty){
+      }else if(model.i != 0){
+        if(model.toothClr[model.i-1].name == muscle.name){
+          model.paint.color = model.toothClr[model.i-1].clr;
+        }
+        if(model.i >= 2){
+          if(model.toothClr[model.i-2].name == muscle.name){
+            model.paint.color = model.toothClr[model.i-2].clr;
+          }
+        }
+        if(model.i >= 3){
+          if(model.toothClr[model.i-3].name == muscle.name){
+            model.paint.color = model.toothClr[model.i-3].clr;
+          }
+        }if(model.i >= 4){
+          if(model.toothClr[model.i-4].name == muscle.name){
+            model.paint.color = model.toothClr[model.i-4].clr;
+          }
+        }if(model.i >= 5){
+          if(model.toothClr[model.i-5].name == muscle.name){
+            model.paint.color = model.toothClr[model.i-5].clr;
+          }
+        }if(model.i >= 6){
+          if(model.toothClr[model.i-6].name == muscle.name){
+            model.paint.color = model.toothClr[model.i-6].clr;
+          }
+        }if(model.i >= 7){
+          if(model.toothClr[model.i-7].name == muscle.name){
+            model.paint.color = model.toothClr[model.i-7].clr;
+          }
+        }if(model.i >= 8){
+          if(model.toothClr[model.i-8].name == muscle.name){
+            model.paint.color = model.toothClr[model.i-8].clr;
+          }
+        }if(model.i >= 9){
+          if(model.toothClr[model.i-9].name == muscle.name){
+            model.paint.color = model.toothClr[model.i-9].clr;
+          }
+        }
+
+
       }
       model.myCanvas.drawPath(
         path.transform(matrix4.storage),

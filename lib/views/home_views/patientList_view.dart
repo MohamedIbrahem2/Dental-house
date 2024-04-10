@@ -1,8 +1,10 @@
+
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dental_house/provider/event_provider.dart';
 import 'package:dental_house/views/home_views/patient_details.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -16,15 +18,65 @@ class PatientList extends StatefulWidget {
 }
 
 class _PatientListState extends State<PatientList> {
+  List _allResults = [];
+  List _resultList = [];
+final TextEditingController _searchController = TextEditingController();
+  @override
+  void initState(){
+    super.initState();
+    _searchController.addListener(_onSearchChanged);
+  }
+  _onSearchChanged(){
+    print(_searchController.text);
+    searchResultList();
+  }
+  searchResultList(){
+    var showResult = [];
+    if(_searchController.text != ''){
+      for (var clientSnapshot in _allResults){
+        var name = clientSnapshot['firstName'].toString().toLowerCase() + clientSnapshot['lastName'].toString().toLowerCase();
+        if(name.contains(_searchController.text.toLowerCase())){
+          showResult.add(clientSnapshot);
+        }
+      }
+    }else{
+      showResult = List.from(_allResults);
+    }
+    setState(() {
+      _resultList = showResult;
+    });
+
+  }
+
   bool isDark = false;
   late MyData list;
   var currentFocus;
-
+  getClientsStream() async{
+    var data = await FirebaseFirestore.instance.collection('Dental House')
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .collection('patients')
+        .orderBy('firstName')
+        .get();
+    setState(() {
+      _allResults = data.docs;
+    });
+  }
   unFocus() {
     currentFocus = FocusScope.of(context);
     if (!currentFocus.hasPrimaryFocus) {
       currentFocus.unfocus();
     }
+  }
+  @override
+  void dispose(){
+    _searchController.removeListener(_onSearchChanged);
+    _searchController.dispose();
+    super.dispose();
+  }
+  @override
+  void didChangeDependencies(){
+    getClientsStream();
+    super.didChangeDependencies();
   }
   @override
   Widget build(BuildContext context) {
@@ -39,6 +91,7 @@ class _PatientListState extends State<PatientList> {
           stream: FirebaseFirestore.instance.collection('Dental House')
               .doc(FirebaseAuth.instance.currentUser!.uid)
               .collection('patients')
+              .orderBy('firstName')
               .snapshots(),
           builder: (context,snapshot) {
             if(snapshot.hasData){
@@ -81,35 +134,17 @@ class _PatientListState extends State<PatientList> {
                             child: Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: Center(
-                                child: SearchAnchor(
-                                  builder: (BuildContext context, SearchController controller) {
-                                    return SearchBar(
-                                      controller: controller,
-                                      padding: const MaterialStatePropertyAll<EdgeInsets>(
-                                          EdgeInsets.symmetric(horizontal: 16.0)),
-                                      onTap: () {
-                                        controller.openView();
-                                      },
-                                      onChanged: (_) {
-                                        controller.openView();
-                                      },
-                                      leading: const Icon(Icons.search),
-                                    );
-                                  }, suggestionsBuilder: (BuildContext context, SearchController controller) {
-                                  return List<ListTile>.generate(documents.length, (int index) {
-                                    var data = documents[index].data() as Map<String, dynamic>;
-                                    final String item = data['firstName'] + data['lastName'];
-                                    return ListTile(
-                                      title: Text(item),
-                                      onTap: () {
-                                        setState(() {
-                                          controller.closeView(item);
-                                        });
-                                      },
-                                    );
-                                  });
-                                },
-                                ),
+                                child: SizedBox(
+                                  height: 50,
+                                  width: double.infinity,
+                                  child: CupertinoSearchTextField(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(25),
+                                      color: Colors.white
+                                    ),
+                                    controller: _searchController,
+                                  ),
+                                )
                               ),
                             ),
                           ),
@@ -125,7 +160,7 @@ class _PatientListState extends State<PatientList> {
                                         20))),
                                 elevation: 4.0,
                                 child: ListView.builder(
-                                        itemCount: documents.length,
+                                        itemCount: _resultList.isEmpty ? documents.length : _resultList.length,
                                         itemBuilder: (context, index) {
                                           var data = documents[index].data() as Map<String, dynamic>;
                                           return Padding(
@@ -142,18 +177,21 @@ class _PatientListState extends State<PatientList> {
                                                   mainAxisSize: MainAxisSize.min,
                                                   children: [
                                                     IconButton(onPressed: () {
-                                                      deleteData(data['id']);
+                                                      setState(() {
+                                                        deleteData(data['id']);
+                                                        _resultList.removeAt(index);
+                                                      });
                                                     }, icon: const Icon(Icons.delete,color: Colors.blueAccent,))
                                                   ],
                                                 ),
                                                 leading: const Icon(Icons.person_outline,color: Colors.blueAccent,),
                                                   title: Row(
                                                     children: [
-                                                      Text(data['firstName']),
-                                                      Text(data['lastName'])
+                                                      Text(_resultList.isEmpty ? data['firstName'] : _resultList[index]['firstName']),
+                                                      Text(_resultList.isEmpty ? data['lastName'] : _resultList[index]['lastName'])
                                                     ],
                                                   ),
-                                                    subtitle: Text(data['PhoneNum']),
+                                                    subtitle: Text(_resultList.isEmpty ? data['PhoneNum'] : _resultList[index]['PhoneNum']),
                                                       ),
                                                               ),
                                                             );

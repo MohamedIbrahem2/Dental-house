@@ -68,7 +68,7 @@ class _NewPatientState extends State<NewPatient> {
                       padding: EdgeInsets.all(15.0),
                       child: Center(
                         child: Text(
-                          'Patient Information',
+                          'Add Patient',
                           style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold,color: Colors.white),
                         ),
                       ),

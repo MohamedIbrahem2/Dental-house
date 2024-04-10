@@ -8,6 +8,28 @@ Future<void> deleteData(String documentId) async {
       .doc(FirebaseAuth.instance.currentUser!.uid)
       .collection('patients')
       .doc(documentId).delete();
+  await dataCollection
+      .doc(FirebaseAuth.instance.currentUser!.uid)
+      .collection('patients')
+      .doc(documentId)
+      .collection("dentalNotes")
+      .get()
+      .then((value) {
+    for (DocumentSnapshot ds in value.docs) {
+      ds.reference.delete();
+    }
+  }
+    );
+}
+Future<void> deleteNote(String toothNum, String documentId) async {
+  final CollectionReference dataCollection =
+  FirebaseFirestore.instance.collection('Dental House');
+  await dataCollection
+      .doc(FirebaseAuth.instance.currentUser!.uid)
+      .collection('patients')
+      .doc(documentId)
+      .collection('dentalNotes')
+      .doc(toothNum).delete();
 }
 
 class MyData {

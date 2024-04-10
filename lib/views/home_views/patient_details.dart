@@ -1,12 +1,15 @@
 
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dental_house/models/pData.dart';
 import 'package:dental_house/provider/event_provider.dart';
 import 'package:dental_house/views/Patients_Info_views/dental_notes.dart';
+import 'package:dental_house/views/Patients_Info_views/patients_photo.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../Patients_Info_views/dental_chart.dart';
 class PatientDetails extends StatefulWidget {
@@ -20,10 +23,27 @@ class PatientDetails extends StatefulWidget {
 }
 
 class _PatientDetailsState extends State<PatientDetails> {
-  List<String> teeth = [];
+  String teeth = "";
+  late String clr;
   CollectionReference users = FirebaseFirestore.instance.collection('Dental House');
+  Future<void> addPatient() {
+    return users
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .collection('waitingList')
+        .doc(widget.myList.id)
+        .set({
+      'firstName': widget.myList.fName,
+      'age': widget.myList.age,
+      'lastName': widget.myList.lName,
+      'PhoneNum': widget.myList.phone,
+      'id' : widget.myList.id,
+    })
+        .then((value) => print("Patient Added"))
+        .catchError((error) => print("Failed to add patient: $error"));
+  }
 
   Future<void> addUser() {
+    final provider = Provider.of<EventProvider>(context, listen: false);
     return users
         .doc(FirebaseAuth.instance.currentUser!.uid)
         .collection('patients')
@@ -32,7 +52,23 @@ class _PatientDetailsState extends State<PatientDetails> {
         .get()
         .then((QuerySnapshot qs){
       qs.docs.forEach((doc){
-        teeth.add(doc['toothNumber']);
+        teeth = doc['toothNumber'];
+        clr = doc['color'];
+        if(clr == "Color(0xff000000)"){
+          clr = clr.replaceAll("Color(", "");
+          clr = clr.replaceAll(")", "");
+        }else if(clr == "ColorSwatch(primary value: Color(0xff9c27b0))"){
+          clr = clr.replaceAll("ColorSwatch(primary value: ", "");
+          clr = clr.replaceAll("Color(", "");
+          clr = clr.replaceAll("))", "");
+        }
+        else{
+          clr = clr.replaceAll(
+              "MaterialColor(primary value: ", "");
+          clr = clr.replaceAll("Color(", "");
+          clr = clr.replaceAll("))", "");
+        }
+        provider.addPro1(teeth,Color(int.parse(clr)));
       });
     });
   }
@@ -40,9 +76,7 @@ class _PatientDetailsState extends State<PatientDetails> {
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async{
-      final provider = Provider.of<EventProvider>(context, listen: false);
       await addUser();
-      provider.addPro1(teeth);
     });
     super.initState();
   }
@@ -77,7 +111,14 @@ class _PatientDetailsState extends State<PatientDetails> {
                     height: 100,
                   ),
                 ),
-                Text(widget.myList.fName + " " +  widget.myList.lName,style: TextStyle(color: Colors.white),),
+                    Text(widget.myList.fName + " " +  widget.myList.lName,
+                      style: TextStyle(color: Colors.white),),
+                ElevatedButton(
+                  onPressed: () {
+                    dialog(dialog: DialogType.question, text: "Add Patient to Waiting list ? ").show();
+                  },
+                  child: Text('+'),
+                ),
               ],
             ),
           ),
@@ -92,8 +133,10 @@ class _PatientDetailsState extends State<PatientDetails> {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     IconButton(onPressed: (){
+                      _makePhoneCall(widget.myList.phone);
                     }, icon: Icon(Icons.call,color: Colors.blueAccent,)),
                     IconButton(onPressed: (){
+                      _makeSms(widget.myList.phone);
                     }, icon: Icon(Icons.sms,color: Colors.blueAccent,)),
                     IconButton(onPressed: (){
                     }, icon: Icon(Icons.smart_screen,color: Colors.blueAccent,))
@@ -123,13 +166,16 @@ class _PatientDetailsState extends State<PatientDetails> {
                       Text(widget.myList.phone,style: TextStyle(color: Colors.black),),
                       Text("Age",style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold),),
                       Text(widget.myList.age,style: TextStyle(color: Colors.black),),
+
                       crd(txt1: 'Dental Chart', txt2: "Edit Patient's Chart",onTap: (){
                         Navigator.push(context, MaterialPageRoute(builder: (context)=> DentalChart(myList: widget.myList,)));
                       }),
                       crd(txt1: 'Dental Notes', txt2: 'Review Notes',onTap: (){
                         Navigator.push(context, MaterialPageRoute(builder: (context)=> DentalNotes(myList: widget.myList,)));
                       }),
-                      crd(txt1: 'Patient Photo', txt2: "Patient's Dental Photo")
+                      crd(txt1: 'Patient Photo', txt2: "Patient's Dental Photo",onTap: (){
+                        Navigator.push(context, MaterialPageRoute(builder: (context)=>PatientPhoto()));
+                      })
                     ],
                   ),
                 ),
@@ -179,4 +225,79 @@ class _PatientDetailsState extends State<PatientDetails> {
       ),
     ),
 );
+  Future<void> _makePhoneCall(String phoneNumber) async {
+    final Uri launchUri = Uri(
+      scheme: 'tel',
+      path: phoneNumber,
+    );
+    await launchUrl(launchUri);
+  }
+  Future<void> _makeSms(String phoneNumber) async {
+    final Uri launchUri = Uri(
+      scheme: 'sms',
+      path: phoneNumber,
+    );
+    await launchUrl(launchUri);
+  }
+  AwesomeDialog dialog ({
+    required var dialog,
+    required String text,
+  }) => AwesomeDialog(
+    borderSide: const BorderSide(
+        width: 3,
+        color: Colors.blue
+    ),
+    context: context,
+    title: "Error",
+    dialogType: dialog,
+    body: Padding(
+      padding: const EdgeInsets.all(12.0),
+      child: Column(
+        children: [
+          Text(text,style: const TextStyle(fontSize: 18,fontWeight: FontWeight.bold),),
+          SizedBox(
+            height: 20,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                height: 35,
+                width: 100,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blueAccent
+                  ),
+                  onPressed: () async{
+                    await addPatient();
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Patient add successfully to Waiting list"),
+                      elevation: 10,
+                      behavior: SnackBarBehavior.floating,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15),side: BorderSide(color: Colors.white,width: 3)),
+                      margin: EdgeInsets.all(15),
+                    ));
+                  },
+                  child: Text('Yes',style: TextStyle(
+                    color: Colors.white
+                  ),),
+                ),
+              ),
+              Container(
+                height: 35,
+                width: 100,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: Text('No'),
+                ),
+              ),
+            ],
+          ),
+
+        ],
+      ),
+    ),
+  );
 }

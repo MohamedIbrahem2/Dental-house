@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dental_house/models/tooth_color.dart';
 import 'package:dental_house/provider/event_provider.dart';
 import 'package:dental_house/views/Patients_Info_views/dental_chart.dart';
 import 'package:dental_house/views/home_views/procedure.dart';
@@ -267,7 +268,8 @@ class _AddDentalNotesState extends State<AddDentalNotes> {
                               backgroundColor: Colors.blueAccent, elevation: 5),
                           onPressed: ()async{
                             if(_formKey.currentState!.validate()){
-                              await addUser(model.selectedTeethPart.length == 1 ? model.selectedTeethPart.first : model.selectedTeethPart.toString(), model.tileColor, model.lines.toString());
+                              await addUser(model.selectedTeethPart.first ,provider.tileColor, model.lines.toString());
+                              provider.toothClr.add(MyColor(name: provider.selectedTeethPart.first, clr: provider.tileColor));
                               model.addTeeth();
                               Navigator.pop(context);
                             }

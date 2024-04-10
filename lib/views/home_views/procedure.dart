@@ -157,7 +157,9 @@ class _ProcedureState extends State<Procedure> {
           }
           if (!snapshot.hasData) {
             return const Center(
-                child: CircularProgressIndicator(color: Colors.white,));
+                child: CircularProgressIndicator(
+                  backgroundColor: Colors.blueAccent,
+                  color: Colors.white,));
           }
           return Text("No Procedure Found");
         }

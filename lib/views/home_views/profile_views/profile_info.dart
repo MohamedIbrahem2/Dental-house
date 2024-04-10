@@ -1,9 +1,11 @@
 import 'dart:ffi';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dental_house/provider/event_provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:progress_dialog_null_safe/progress_dialog_null_safe.dart';
+import 'package:provider/provider.dart';
 class profile_info extends StatefulWidget {
 
   @override
@@ -44,11 +46,13 @@ class _profile_infoState extends State<profile_info> {
               .collection('info')
               .doc('info').get(),
           builder: (BuildContext context,AsyncSnapshot<DocumentSnapshot> snapshot) {
+            final provider = Provider.of<EventProvider>(context);
             if(snapshot.connectionState == ConnectionState.done){
               Map<String, dynamic> data = snapshot.data!.data() as Map<String, dynamic>;
               email.text = data['Email'];
               first.text = data['first_name'];
               last.text = data['last_name'];
+              provider.lastName = data['last_name'];
             return Form(
               key: formState,
               child: SafeArea(

@@ -39,7 +39,7 @@ class DentalChart extends StatelessWidget {
             }, icon: Icon(Icons.arrow_back, color: Colors.white,)),
             backgroundColor: Colors.blueAccent,
             title: model.clicked == false ?
-                Text(model.selectedTeethPart.length.toString() + " Selected",style: const TextStyle(color: Colors.white),)
+            Text(model.selectedTeethPart.length.toString() + " Selected",style: const TextStyle(color: Colors.white),)
                 : Text(
               "Dental Chart", style: TextStyle(color: Colors.white),),
           ),
@@ -66,18 +66,17 @@ class DentalChart extends StatelessWidget {
                   height: double.infinity,
                   width: double.infinity,
                   child: Card(
-                    shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(20),
-                            topRight: Radius.circular(20))),
-                    elevation: 4.0,
-                          child: CanvasTouchDetector(
-                            builder: (context) =>
-                                CustomPaint(
-
-                                  painter: AdultPainter(context: context, model: model, myList: myList),
-                                ),
-                          )
+                      shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(20),
+                              topRight: Radius.circular(20))),
+                      elevation: 4.0,
+                      child: CanvasTouchDetector(
+                        builder: (context) =>
+                            CustomPaint(
+                              painter: AdultPainter(context: context, model: model, myList: myList),
+                            ),
+                      )
 
                   ),
                 ),
