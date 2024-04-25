@@ -14,6 +14,7 @@ class EventProvider extends ChangeNotifier {
   var paint;
   var paint2;
   var documents;
+  String photo = '';
   String lastName = '';
   String name = '';
   final List<MyColor> toothClr  = [];

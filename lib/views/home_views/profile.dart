@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dental_house/provider/event_provider.dart';
@@ -11,6 +12,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../models/pData.dart';
 import '../login.dart';
@@ -26,6 +28,7 @@ class Profile extends StatefulWidget {
 
 class _ProfileState extends State<Profile> {
   String name = '';
+  String photo = '';
   late String pic;
   bool ispic = false;
   File? image;
@@ -42,13 +45,21 @@ class _ProfileState extends State<Profile> {
       });
     });
   }
+  void _loadPreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      photo = prefs.getString('photo') ?? '';
+    });
+  }
   Future<void> addPhoto() async{
+    final prefs = await SharedPreferences.getInstance();
     final ref = FirebaseStorage.instance
         .ref()
         .child('doctorsimages')
         .child(name + '.jpg');
         await ref.putFile(image!);
         url = await ref.getDownloadURL();
+        prefs.setString('photo', url);
     return users
         .doc(FirebaseAuth.instance.currentUser!.uid)
         .collection('info')
@@ -79,6 +90,7 @@ class _ProfileState extends State<Profile> {
   void initState(){
     super.initState();
     getUsersData();
+    _loadPreferences();
   }
   @override
   Widget build(BuildContext context) {
@@ -94,10 +106,10 @@ class _ProfileState extends State<Profile> {
                     child: Stack(
                       fit: StackFit.expand,
                       children: [
-                        //image != null ?
                           ClipOval(
-                            child: Image.asset("images/person.png",fit: BoxFit.cover,
-                            ),
+                            child: photo == '' ? Image.asset("images/person.png",fit: BoxFit.cover,
+                            ) : Image.network(photo,fit: BoxFit.cover,
+                  )
                           ),
                              // : FlutterLogo(),
 

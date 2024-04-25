@@ -6,6 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../models/teeth_part.dart';
 class HomePage extends StatefulWidget {
@@ -19,7 +20,7 @@ class _HomePageState extends State<HomePage> {
 String patients = '';
 String events = '';
 String waiting = '';
-
+String photo = '';
 String? myToken;
 getToken()async{
   myToken = await FirebaseMessaging.instance.getToken();
@@ -70,6 +71,13 @@ void getEventNum() {
     });
   });
 }
+void _loadPreferences() async {
+  final prefs = await SharedPreferences.getInstance();
+  setState(() {
+    photo = prefs.getString('photo') ?? '';
+  });
+}
+
   @override
   void initState(){
     super.initState();
@@ -77,6 +85,7 @@ void getEventNum() {
     getEventNum();
     getWaitingNum();
     getToken();
+    _loadPreferences();
   }
   @override
   Widget build(BuildContext context) {
@@ -109,8 +118,9 @@ void getEventNum() {
                           height: 50,
                           width: 50,
                           child: ClipOval(
-                            child: Image.asset("images/person.png",fit: BoxFit.cover,
-                            ),
+                            child: photo != '' ? Image.network(photo ,fit: BoxFit.cover,
+                            ) : Image.asset("images/person.png",fit: BoxFit.cover,
+                            )
                           ),
                         ),
                         Padding(
@@ -126,7 +136,7 @@ void getEventNum() {
                       ]
                     )
                   ],
-                  
+
                 ),
               ),
             )
